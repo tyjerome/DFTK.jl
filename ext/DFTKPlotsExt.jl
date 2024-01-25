@@ -2,7 +2,7 @@ module DFTKPlotsExt
 using Brillouin: KPath
 using DFTK
 using DFTK: is_metal, data_for_plotting, spin_components, default_band_εrange
-import DFTK: plot_dos, plot_bandstructure
+import DFTK: plot_dos, plot_bandstructure, plot_pdos
 using Plots
 using Unitful
 using UnitfulAtomic
@@ -107,5 +107,36 @@ function plot_dos(basis, eigenvalues; εF=nothing, unit=u"hartree",
     p
 end
 plot_dos(scfres; kwargs...) = plot_dos(scfres.basis, scfres.eigenvalues; scfres.εF, kwargs...)
+
+function plot_pdos(i::Integer, l::Integer, m::Integer, basis, eigenvalues, ψ, pname::String; εF=nothing, unit=u"hartree",
+    εrange=default_band_εrange(eigenvalues; εF), n_points=1000, kwargs...)
+    n_spin = basis.model.n_spin_components
+    eshift = something(εF, 0.0)
+    εs = range(austrip.(εrange)..., length=n_points)
+
+    # Constant to convert from AU to the desired unit
+    to_unit = ustrip(auconvert(unit, 1.0))
+
+    p = Plots.plot(; kwargs...)
+    spinlabels = spin_components(basis.model)
+    colors = [:blue, :red]
+    PDεs = compute_pdos(εs, i, l, m, basis, eigenvalues, ψ)
+    for σ in 1:n_spin
+        D = [Dσ[σ] for Dσ in PDεs]
+        label = n_spin > 1 ? "$(pname) $(spinlabels[σ]) spin" : "$(pname)"
+        Plots.plot!(p, (εs .- eshift) .* to_unit, D; label, color=colors[σ])
+    end
+    if !isnothing(εF)
+        Plots.vline!(p, [0.0], label="εF", color=:green, lw=1.5)
+    end
+
+    if isnothing(εF)
+        Plots.xlabel!(p, "eigenvalues  ($(string(unit)))")
+    else
+        Plots.xlabel!(p, "eigenvalues -ε_F  ($(string(unit)))")
+    end
+    p
+end
+plot_pdos(i::Integer, l::Integer, m::Integer, scfres, pname; kwargs...) = plot_pdos(i, l, m, scfres.basis, scfres.eigenvalues, scfres.ψ, pname; scfres.εF, kwargs...)
 
 end
