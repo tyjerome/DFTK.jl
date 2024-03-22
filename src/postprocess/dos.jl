@@ -68,20 +68,26 @@ Plot the density of states over a reasonable range. Requires to load `Plots.jl` 
 """
 function plot_dos end
 
+function plot_ldos end
+
 """
 Projected density of states at energy ε
 """
 # PD(ε) = sum_n f_n' |<ψn,ϕ>|^2
-function compute_pdos_projs(basis, eigenvalues, ψ, gtest)
+function compute_pdos_projs(basis, eigenvalues, ψ, gtest, position)
+
 
     projs = similar(eigenvalues)
 
     for (ik, ψk) in enumerate(ψ)
-        gik = gtest.(Gplusk_vectors_cart(basis, basis.kpoints[ik]))
+        Gik = DFTK.Gplusk_vectors_cart(basis, basis.kpoints[ik])
+        pG = [dot(position, Gi) for Gi in Gik]
+        gik = exp.(-im * pG) .* gtest.(Gik)
+        #gik = gtest.(Gik)
         projs[ik] = abs2.(ψk' * gik)
     end
 
-    projs ./ basis.model.unit_cell_volume
+    projs ./ (basis.model.unit_cell_volume)
 end
 
 function compute_pdos(ε, basis, eigenvalues, projs;
@@ -105,28 +111,28 @@ function compute_pdos(ε, basis, eigenvalues, projs;
     D = mpi_sum(D, basis.comm_kpts)
 end
 
-function compute_pdos(ε, basis, eigenvalues, ψ, gtest; kwargs...)
-    projs = compute_pdos_projs(basis, eigenvalues, ψ, gtest)
+function compute_pdos(ε, basis, eigenvalues, ψ, gtest, position; kwargs...)
+    projs = compute_pdos_projs(basis, eigenvalues, ψ, gtest, position)
     map(x -> compute_pdos(x, basis, eigenvalues, projs; kwargs...), ε)
 end
 
-function compute_pdos(scfres::NamedTuple, gtset;
+function compute_pdos(scfres::NamedTuple, gtset, position;
     ε=scfres.εF, kwargs...)
-    compute_pdos(ε, scfres.basis, scfres.eigenvalues, scfres.ψ, gtset; kwargs...)
+    compute_pdos(ε, scfres.basis, scfres.eigenvalues, scfres.ψ, gtset, position; kwargs...)
 end
 
 function atom_fourier(i::Integer, l::Integer, m::Integer, q::AbstractVector{T}, psp_upf) where {T<:Real}
     im^l * ylm_real(l, m, -q / (norm(q) + 1e-10)) * eval_psp_pswfc_fourier(psp_upf, i, l, norm(q))
 end
 
-function compute_pdos(ε, i::Integer, l::Integer, m::Integer,
-    basis, eigenvalues, ψ; kwargs...)
-    compute_pdos(ε, basis, eigenvalues, ψ, q -> atom_fourier(i, l, m, q, basis.model.atoms[1].psp); kwargs...)
+function compute_pdos(ε, i::Integer, l::Integer, m::Integer, 
+    iatom::Integer, basis, eigenvalues, ψ; kwargs...)
+    compute_pdos(ε, basis, eigenvalues, ψ, q -> atom_fourier(i, l, m, q, basis.model.atoms[1].psp), basis.model.positions[iatom]; kwargs...)
 end
 
-function compute_pdos(i::Integer, l::Integer, m::Integer, scfres::NamedTuple;
+function compute_pdos(i::Integer, l::Integer, m::Integer, iatom::Integer, scfres::NamedTuple;
     ε=scfres.εF, kwargs...)
-    compute_pdos(ε, i, l, m, scfres.basis, scfres.eigenvalues, scfres.ψ; kwargs...)
+    compute_pdos(ε, i, l, m, iatom, scfres.basis, scfres.eigenvalues, scfres.ψ; kwargs...)
 end
 
 function plot_pdos end

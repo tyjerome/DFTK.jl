@@ -214,6 +214,7 @@ export compute_dos
 export compute_ldos
 export compute_pdos
 export plot_dos
+export plot_ldos
 export plot_pdos
 include("postprocess/dos.jl")
 export compute_χ0
