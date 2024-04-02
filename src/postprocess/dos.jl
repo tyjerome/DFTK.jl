@@ -74,22 +74,6 @@ function plot_ldos end
 Projected density of states at energy ε
 """
 # PD(ε) = sum_n f_n' |<ψn,ϕ>|^2
-function compute_pdos_projs(basis, eigenvalues, ψ, gtest, position)
-
-
-    projs = similar(eigenvalues)
-
-    for (ik, ψk) in enumerate(ψ)
-        Gik = DFTK.Gplusk_vectors_cart(basis, basis.kpoints[ik])
-        pG = [dot(position, Gi) for Gi in Gik]
-        gik = exp.(-im * pG) .* gtest.(Gik)
-        #gik = gtest.(Gik)
-        projs[ik] = abs2.(ψk' * gik)
-    end
-
-    projs ./ (basis.model.unit_cell_volume)
-end
-
 function compute_pdos(ε, basis, eigenvalues, projs;
     smearing=basis.model.smearing,
     temperature=basis.model.temperature)
@@ -111,28 +95,80 @@ function compute_pdos(ε, basis, eigenvalues, projs;
     D = mpi_sum(D, basis.comm_kpts)
 end
 
-function compute_pdos(ε, basis, eigenvalues, ψ, gtest, position; kwargs...)
-    projs = compute_pdos_projs(basis, eigenvalues, ψ, gtest, position)
-    map(x -> compute_pdos(x, basis, eigenvalues, projs; kwargs...), ε)
+function compute_pdos(ε, basis, eigenvalues, ψ, i::Integer, l::Integer, psp, position; kwargs...)
+    projs = compute_pdos_projs(basis, eigenvalues, ψ, i, l, psp, position)
+
+    pdos = map(x->zeros(typeof(ε[1]),length(ε), 2l + 1), 1:basis.model.n_spin_components)
+    for j = 1 : 2l+1
+        projs_lj = [projsk[:,j] for projsk in projs]
+        for (i,εi) in enumerate(ε)
+            pdos_ij = compute_pdos(εi, basis, eigenvalues, projs_lj; kwargs...)
+            for n_spin = 1 : basis.model.n_spin_components
+                pdos[n_spin][i,j] = pdos_ij[n_spin]
+            end
+        end
+    end
+
+   pdos
 end
 
-function compute_pdos(scfres::NamedTuple, gtset, position;
-    ε=scfres.εF, kwargs...)
-    compute_pdos(ε, scfres.basis, scfres.eigenvalues, scfres.ψ, gtset, position; kwargs...)
-end
-
-function atom_fourier(i::Integer, l::Integer, m::Integer, q::AbstractVector{T}, psp_upf) where {T<:Real}
-    im^l * ylm_real(l, m, -q / (norm(q) + 1e-10)) * eval_psp_pswfc_fourier(psp_upf, i, l, norm(q))
-end
-
-function compute_pdos(ε, i::Integer, l::Integer, m::Integer, 
+function compute_pdos(ε, i::Integer, l::Integer,
     iatom::Integer, basis, eigenvalues, ψ; kwargs...)
-    compute_pdos(ε, basis, eigenvalues, ψ, q -> atom_fourier(i, l, m, q, basis.model.atoms[1].psp), basis.model.positions[iatom]; kwargs...)
+    compute_pdos(ε, basis, eigenvalues, ψ, i, l, basis.model.atoms[iatom].psp, basis.model.positions[iatom]; kwargs...)
 end
 
-function compute_pdos(i::Integer, l::Integer, m::Integer, iatom::Integer, scfres::NamedTuple;
+function compute_pdos(i::Integer, l::Integer, iatom::Integer, scfres::NamedTuple;
     ε=scfres.εF, kwargs...)
-    compute_pdos(ε, i, l, m, iatom, scfres.basis, scfres.eigenvalues, scfres.ψ; kwargs...)
+    scfres = unfold_bz(scfres)
+    compute_pdos(ε, i, l, iatom, scfres.basis, scfres.eigenvalues, scfres.ψ; kwargs...)
+end
+
+
+function compute_pdos_projs(basis, eigenvalues, ψ, i::Integer, l::Integer, psp, position)
+
+    projs = Vector{Matrix}(undef, length(eigenvalues))
+    position = vector_red_to_cart(basis.model, position)
+
+    for (ik, ψk) in enumerate(ψ)
+        Gk_cart = to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik]))
+        fourier_form_k = atom_fourier_form(i, l, psp, Gk_cart)
+        atom_shift = [dot(position, Gi) for Gi in Gk_cart]
+        atom_fourier_k = exp.(-im * atom_shift) .* fourier_form_k
+        projs[ik] = abs2.(ψk' * atom_fourier_k)
+    end
+
+    projs ./ (basis.model.unit_cell_volume)
+end
+
+
+"""
+Build form factors (Fourier transforms of pseudo-atomic wavefunctions) for an atom centered at 0.
+"""
+function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{Vec3{TT}}) where {TT}
+    T = real(TT)
+    @assert psp isa PspUpf
+    # Pre-compute the radial parts of the  pseudo-atomic wavefunctions at unique |p| to speed up
+    # the form factor calculation (by a lot). Using a hash map gives O(1) lookup.
+    
+    radials = IdDict{T,T}()  # IdDict for Dual compatibility
+    for p in G_plus_k
+        p_norm = norm(p)
+        if !haskey(radials, p_norm)
+            radials[p_norm] = eval_psp_pswfc_fourier(psp, i, l, p_norm)
+        end
+    end
+
+    form_factors = Matrix{Complex{T}}(undef, length(G_plus_k), 2l+1)
+    for (ip, p) in enumerate(G_plus_k)
+        radials_p = radials[norm(p)]
+        count = 1
+        for m = -l:l
+            # see "Fourier transforms of centered functions" in the docs for the formula
+            angular = (-im)^l * ylm_real(l, m, p)
+            form_factors[ip, m+l+1] = radials_p * angular
+        end
+    end
+    form_factors
 end
 
 function plot_pdos end

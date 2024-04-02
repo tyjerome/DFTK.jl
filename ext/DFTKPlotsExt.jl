@@ -144,7 +144,7 @@ function plot_ldos(basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
 end
 plot_ldos(scfres; kwargs...) = plot_ldos(scfres.basis, scfres.eigenvalues, scfres.ψ; scfres.εF, kwargs...)
 
-function plot_pdos(i::Integer, l::Integer, m::Integer, iatom::Integer, basis, eigenvalues, ψ, pname::String; εF=nothing, unit=u"hartree",
+function plot_pdos(p, i::Integer, l::Integer, iatom::Integer, basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
     temperature=basis.model.temperature,
     smearing=basis.model.smearing,
     εrange=default_band_εrange(eigenvalues; εF), n_points=1000, kwargs...)
@@ -156,42 +156,39 @@ function plot_pdos(i::Integer, l::Integer, m::Integer, iatom::Integer, basis, ei
     # Constant to convert from AU to the desired unit
     to_unit = ustrip(auconvert(unit, 1.0))
 
-    p = Plots.plot(; kwargs...)
     spinlabels = spin_components(basis.model)
     colbar = collect(palette(:tab10))
     colors = [colbar[10], colbar[2]]
 
-    PDεs = compute_pdos(εs, i, l, m, iatom, basis, eigenvalues, ψ)
+    pdos = compute_pdos(εs, i, l, iatom, basis, eigenvalues, ψ)
+    pdos = [reduce(+, pdosi, dims=2)[:] for pdosi in pdos]
+    pname = basis.model.atoms[iatom].psp.pswfc_labels[l+1][i]
     for σ in 1:n_spin
-        D = [Dσ[σ] for Dσ in PDεs]
+        D = pdos[σ]
         label = n_spin > 1 ? "$(pname) $(spinlabels[σ]) spin" : "$(pname)"
-        Plots.plot!(p, (εs .- eshift) .* to_unit, D; label, color=colors[σ])
-    end
-    if !isnothing(εF)
-        Plots.vline!(p, [0.0], label="", color=:green, lw=1.5)
+        Plots.plot!(p, (εs .- eshift) .* to_unit, D; label, color=colors[l+σ])
     end
 
-    if isnothing(εF)
-        Plots.xlabel!(p, "eigenvalues  ($(string(unit)))")
-    else
-        Plots.xlabel!(p, "eigenvalues -ε_F  ($(string(unit)))")
-    end
-
-    dosP = Plots.plot(xformatter=Returns(""); kwargs...)
-    spinlabels = spin_components(basis.model)
-    colors = [:blue, :red]
-    Dεs = compute_dos.(εs, Ref(basis), Ref(eigenvalues); smearing, temperature)
-    for σ = 1:n_spin
-        D = [Dσ[σ] for Dσ in Dεs]
-        label = n_spin > 1 ? "DOS $(spinlabels[σ]) spin" : "DOS"
-        Plots.plot!(dosP, (εs .- eshift) .* to_unit, D; label, color=colors[σ])
-    end
-    if !isnothing(εF)
-        Plots.vline!(dosP, [0.0], label="εF", color=:green, lw=1.5)
-    end
-
-    plot(dosP, p, layout=(2, 1), top_margin=[0mm -5mm])
+    p
 end
-plot_pdos(i::Integer, l::Integer, m::Integer, iatom::Integer, scfres, pname; kwargs...) = plot_pdos(i, l, m, iatom, scfres.basis, scfres.eigenvalues, scfres.ψ, pname; scfres.εF, kwargs...)
+
+function plot_pdos(i::Integer, l::Integer, iatom::Integer, scfres; kwargs...) 
+    p = plot_dos(scfres; kwargs...)
+    scfres_unfold = DFTK.unfold_bz(scfres)
+    plot_pdos(p, i, l, iatom, scfres_unfold.basis, scfres_unfold.eigenvalues, scfres_unfold.ψ; scfres_unfold.εF, kwargs...)
+end
+
+function plot_pdos(iatom::Integer, scfres; kwargs...)
+    p = plot_dos(scfres; kwargs...)
+    scfres_unfold = DFTK.unfold_bz(scfres)
+    psp = scfres.basis.model.atoms[iatom].psp
+    for l = 0:psp.lmax-1
+        for i = 1:length(psp.r2_pswfcs[l+1])
+            plot_pdos(p, i, l, iatom, scfres_unfold.basis, scfres_unfold.eigenvalues, scfres_unfold.ψ; scfres_unfold.εF, kwargs...)
+        end
+    end
+    p
+end
+
 
 end
