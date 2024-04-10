@@ -286,61 +286,6 @@ function build_projection_vectors_pswfcs(basis::PlaneWaveBasis{T}, kpt::Kpoint,
     # Offload potential values to a device (like a GPU)
     to_device(basis.architecture, proj_vectors)
 end
-#=
-function atom_fourier(basis::PlaneWaveBasis, kpt::Kpoint, atom_real_orbital)
-    fft(basis, kpt, atom_real_orbital)
-end
-
-function atom_real(r_vectors, l::Integer, m::Integer, i::Integer, position, psp, basis::PlaneWaveBasis)
-    interpolation = linear_interpolation(psp.rgrid, psp.r2_pswfcs[l+1][i])
-    result_array = similar(r_vectors, Any)  # Create an array of same size as r_vector
-    
-    #rl_coordinate = get_inverse_nonzero(basis.kpoints[j].coordinate)
-
-    for i in 1:length(r_vectors), j in 1:length(rl_vectors)
-        q = r_vectors[i] - position - rl_vectors[j]
-        interpolated_value = ylm_real(l, m, -q / (norm(q) + 1e-10)) * interpolation(norm(q))  
-        result_array[i] = interpolated_value
-    end
-
-    result_array = convert(AbstractArray{Any, 3}, result_array)
-
-    return result_array
-end
-
-function get_inverse_nonzero(vectors)
-    # Initialize arrays to store non-zero elements
-    non_zero_x = Float64[]
-    non_zero_y = Float64[]
-    non_zero_z = Float64[]
-    
-    # Iterate over each vector
-    for v in vectors
-        # Check if each element is non-zero and add it to the respective array
-        if v[1] != 0
-            push!(non_zero_x, abs(v[1]))
-        end
-        if v[2] != 0
-            push!(non_zero_y, abs(v[2]))
-        end
-        if v[3] != 0
-            push!(non_zero_z, abs(v[3]))
-        end
-    end
-    
-    # Get the smallest non-zero element for each dimension
-    min_x = minimum(non_zero_x, default=Inf)
-    min_y = minimum(non_zero_y, default=Inf)
-    min_z = minimum(non_zero_z, default=Inf)
-    
-    # Compute the inverses
-    inv_x = 1 / min_x
-    inv_y = 1 / min_y
-    inv_z = 1 / min_z
-    
-    return [inv_x, inv_y, inv_z]
-end
-=#
 
 function find_orbital_indices(element::String, matrix::Vector{Vector{String}})
     """
