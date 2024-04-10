@@ -39,7 +39,7 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
         n_k = length(ψ)
 
         orbital = compute_atom_fourier(basis, scfres.eigenvalues, scfres.ψ, i, l, psp, atom_position)
-
+        ortho_orbital = [ortho_lowdin(orbital_ik) for orbital_ik in orbital]
         #println(orbital[1,1])
         for m1 in -l:l
             for m2 in -l:l
@@ -48,8 +48,8 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
                     sum_over_G_k_1 = zero(ComplexF64)
                     sum_over_G_k_2 = zero(ComplexF64)
                     for G_index in 1:G_k
-                        sum_over_G_k_1 += conj(ψ[ik][G_index,band]) * orbital[ik][G_index, m1+l+1]
-                        sum_over_G_k_2 += conj(orbital[ik][G_index, m2+l+1]) * ψ[ik][G_index,band]
+                        sum_over_G_k_1 += conj(ψ[ik][G_index,band]) * ortho_orbital[ik][G_index, m1+l+1]
+                        sum_over_G_k_2 += conj(ortho_orbital[ik][G_index, m2+l+1]) * ψ[ik][G_index,band]
                     end
                     
                     O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
@@ -108,6 +108,76 @@ function build_proj_matrix(scfres, psp, basis, ψ, i, l, atom_position)
         end
     end
     O
+end
+
+function rearrange_complex_numbers(matrices::Vector{Matrix{ComplexF64}})
+    # Determine the dimensions of the matrices
+    m = size(matrices[1], 2) # number of columns
+    G = [size(matrix, 1) for matrix in matrices] # G(k) for each matrix
+    
+    # Calculate the total number of columns in the rearranged matrix
+    total_columns = sum(G) * m
+    
+    # Initialize the new matrix
+    rearranged_matrix = Matrix{ComplexF64}(undef, m, total_columns)
+    
+    # Initialize the column index
+    col_index = 1
+    
+    # Iterate over each matrix
+    for matrix in matrices
+        # Iterate over each column of the current matrix
+        for col in 1:m
+            # Get the complex numbers in the current column
+            column_values = matrix[:, col]
+            
+            # Copy the values into the rearranged matrix
+            a = size(matrix,1)
+            rearranged_matrix[col, col_index:(col_index+a-1)] .= column_values
+            
+            # Update the column index
+            col_index += a
+        end
+    end
+    
+    return rearranged_matrix
+end
+
+function undo_rearrange_complex_numbers(rearranged_matrix::Matrix{ComplexF64}, G::Vector{Int})
+    # Determine the number of matrices
+    k = length(G)
+    
+    # Determine the number of columns in each matrix
+    m = size(rearranged_matrix, 1)
+    
+    # Initialize the vector of matrices
+    matrices = Vector{Matrix{ComplexF64}}(undef, k)
+    
+    # Initialize the column index
+    col_index = 1
+    
+    # Iterate over each matrix
+    for i in 1:k
+        # Calculate the number of columns for the current matrix
+        num_columns = G[i] * m
+        
+        # Initialize the current matrix
+        matrix = Matrix{ComplexF64}(undef, G[i], m)
+        
+        # Iterate over each column of the current matrix
+        for col in 1:m
+            # Extract values from the rearranged matrix and assign them to the current column of the matrix
+            matrix[:, col] .= rearranged_matrix[col, col_index:col_index+G[i]-1]
+            
+            # Update the column index
+            col_index += G[i]
+        end
+        
+        # Store the current matrix in the vector of matrices
+        matrices[i] = matrix
+    end
+    
+    return matrices
 end
 
 function compute_atom_fourier(basis, eigenvalues, ψ, i::Integer, l::Integer, psp, position)

@@ -31,7 +31,7 @@ positions = [zeros(3), ones(3)/2, ones(3)/4, 3*ones(3)/4]
 magnetic_moments = [1, -1, 0, 0];
 
 model = model_LDA(lattice, atoms, positions ; magnetic_moments, temperature=0.01, smearing=Smearing.MarzariVanderbilt())
-basis = PlaneWaveBasis(model; Ecut=60, kgrid=[4,4,4])
+basis = PlaneWaveBasis(model; Ecut=60, kgrid=[2,2,2])
 ρ0 = guess_density(basis, magnetic_moments)
 
 scfres = self_consistent_field(basis, tol=1e-8; ρ = ρ0, mixing=KerkerDosMixing())
