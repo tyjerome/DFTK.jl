@@ -129,44 +129,56 @@ function compute_pdos_projs(basis, eigenvalues, ψ, i::Integer, l::Integer, psp,
     projs = Vector{Matrix}(undef, length(eigenvalues))
     position = vector_red_to_cart(basis.model, position)
 
+    G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
+    fourier_form = atom_fourier_form(i,l,psp,G_plus_k_all)
+
     for (ik, ψk) in enumerate(ψ)
-        Gk_cart = to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik]))
-        fourier_form_k = atom_fourier_form(i, l, psp, Gk_cart)
-        atom_shift = [dot(position, Gi) for Gi in Gk_cart]
-        atom_fourier_k = exp.(-im * atom_shift) .* fourier_form_k
-        projs[ik] = abs2.(ψk' * atom_fourier_k)
+        fourier_form_k = fourier_form[ik]
+        atom_shift = [dot(position, Gi) for Gi in G_plus_k_all[ik]]
+        atom_fourier_k = exp.(-im * atom_shift) .* fourier_form_k ./ sqrt(basis.model.unit_cell_volume)
+        ak_normalize = similar(atom_fourier_k)
+        for m = 1:2l+1
+            ak_normalize[:, m] = atom_fourier_k[:, m] ./ norm(atom_fourier_k[:, m])
+        end
+        projs[ik] = abs2.(ψk' * ak_normalize)
     end
 
-    projs ./ (basis.model.unit_cell_volume)
+    projs
 end
 
 
 """
 Build form factors (Fourier transforms of pseudo-atomic wavefunctions) for an atom centered at 0.
 """
-function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{Vec3{TT}}) where {TT}
+function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k_all::Vector{Vector{Vec3{TT}}}) where {TT}
     T = real(TT)
     @assert psp isa PspUpf
     # Pre-compute the radial parts of the  pseudo-atomic wavefunctions at unique |p| to speed up
     # the form factor calculation (by a lot). Using a hash map gives O(1) lookup.
     
     radials = IdDict{T,T}()  # IdDict for Dual compatibility
-    for p in G_plus_k
-        p_norm = norm(p)
-        if !haskey(radials, p_norm)
-            radials[p_norm] = eval_psp_pswfc_fourier(psp, i, l, p_norm)
+    for (ik, G_plus_k) in enumerate(G_plus_k_all)
+        for p in G_plus_k
+            p_norm = norm(p)
+            if !haskey(radials, p_norm)
+                radials[p_norm] = eval_psp_pswfc_fourier(psp, i, l, p_norm)
+            end
         end
     end
 
-    form_factors = Matrix{Complex{T}}(undef, length(G_plus_k), 2l+1)
-    for (ip, p) in enumerate(G_plus_k)
-        radials_p = radials[norm(p)]
-        count = 1
-        for m = -l:l
-            # see "Fourier transforms of centered functions" in the docs for the formula
-            angular = (-im)^l * ylm_real(l, m, p)
-            form_factors[ip, m+l+1] = radials_p * angular
+    form_factors = Vector{Matrix{Complex{T}}}(undef, length(G_plus_k_all))
+    for (ik, G_plus_k) in enumerate(G_plus_k_all)
+        form_factors_ik = Matrix{Complex{T}}(undef, length(G_plus_k), 2l + 1)
+        for (ip, p) in enumerate(G_plus_k)
+            radials_p = radials[norm(p)]
+            count = 1
+            for m = -l:l
+                # see "Fourier transforms of centered functions" in the docs for the formula
+                angular = (-im)^l * ylm_real(l, m, p)
+                form_factors_ik[ip, m+l+1] = radials_p * angular
+            end
         end
+        form_factors[ik] = form_factors_ik
     end
     form_factors
 end

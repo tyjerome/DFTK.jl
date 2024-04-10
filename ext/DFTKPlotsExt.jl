@@ -157,18 +157,18 @@ function plot_pdos(p, i::Integer, l::Integer, iatom::Integer, basis, eigenvalues
     to_unit = ustrip(auconvert(unit, 1.0))
 
     spinlabels = spin_components(basis.model)
-    colbar = collect(palette(:tab10))
-    colors = [colbar[10], colbar[2]]
+    colbar = [collect(palette(:tab20)), collect(palette(:tab20b))]
 
+    l_orbital = l_orbital_name(l)
     pdos = compute_pdos(εs, i, l, iatom, basis, eigenvalues, ψ)
-    pdos = [reduce(+, pdosi, dims=2)[:] for pdosi in pdos]
     pname = basis.model.atoms[iatom].psp.pswfc_labels[l+1][i]
     for σ in 1:n_spin
         D = pdos[σ]
-        label = n_spin > 1 ? "$(pname) $(spinlabels[σ]) spin" : "$(pname)"
-        Plots.plot!(p, (εs .- eshift) .* to_unit, D; label, color=colors[l+σ])
+        for m = 1:2l+1
+            label = n_spin > 1 ? "$(pname)$(l_orbital[m]) $(spinlabels[σ]) spin" : "$(pname)$(l_orbital[m])"
+            Plots.plot!(p, (εs .- eshift) .* to_unit, D[:, m]; label, color=colbar[σ][l^2+m])
+        end
     end
-
     p
 end
 
@@ -190,5 +190,16 @@ function plot_pdos(iatom::Integer, scfres; kwargs...)
     p
 end
 
+function l_orbital_name(l::Integer)
+    if l == 0
+        return [" "]
+    elseif l == 1
+        return ["y","z","x"]
+    elseif l == 2
+        return ["xy", "yz", "z^2", "xz", "x^2-y^2"]
+    elseif  l == 3
+        return ["y(3x^2-y^2)", "xyz", "yz^2", "z^3", "xz^2", "z(x^2-y^2)", "x(x^2-3y^2)"]
+    end
+end
 
 end
