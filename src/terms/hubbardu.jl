@@ -179,34 +179,7 @@ function ortho_lowdin(A::AbstractMatrix)
     F = svd(A)
     return F.U * F.Vt
 end
-#=
-function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{Vec3{TT}}) where {TT}
-    T = real(TT)
-    @assert psp isa PspUpf
-    # Pre-compute the radial parts of the  pseudo-atomic wavefunctions at unique |p| to speed up
-    # the form factor calculation (by a lot). Using a hash map gives O(1) lookup.
 
-    radials = IdDict{T,T}()  # IdDict for Dual compatibility
-    for p in G_plus_k
-        p_norm = norm(p)
-        if !haskey(radials, p_norm)
-            radials[p_norm] = eval_psp_pswfc_fourier(psp, i, l, p_norm)
-        end
-    end
-
-    form_factors = Matrix{Complex{T}}(undef, length(G_plus_k), 2l+1)
-    for (ip, p) in enumerate(G_plus_k)
-        radials_p = radials[norm(p)]
-        count = 1
-        for m = -l:l
-            # see "Fourier transforms of centered functions" in the docs for the formula
-            angular = (-im)^l * ylm_real(l, m, p)
-            form_factors[ip, m+l+1] = radials_p * angular
-        end
-    end
-    form_factors
-end
-=#
 function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{SVector{3, TT}}) where {TT}
     T = real(TT)
     @assert psp isa PspUpf
