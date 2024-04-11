@@ -10,10 +10,7 @@ implementing Hubbard model to dft (DFT+U)
     3) get V_Hub
     4) update to Kohn Sham potential
 ------------------------------------------------------------------------------------
-
 """
-#calculate the occupation matrix for certain atom.
-
 function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer, atom_position)
     """
     Occupation matrix for DFT+U implementation
@@ -22,10 +19,7 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
         Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
     """
     occupation = scfres.occupation
-
     O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
-
-    
     #Start calculating Occupation matrix for each atomic sites
     #O_{σ,m1,m2} = Σ_{k, G_k, band} f_{k, band} * w_{k} |ψ_σ,k,band><proj_m1|proj_m2><ψ_σ,k,band|
     #=
@@ -33,151 +27,20 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
     =#
     for σ in 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
         #println(σ, ik)
-        qs_cart = Gplusk_vectors_cart(basis, basis.kpoints[ik])
-        G_k = size(ψ[ik], 1)
         num_band = size(ψ[ik], 2)
-        n_k = length(ψ)
-
         orbital = compute_atom_fourier(basis, scfres.eigenvalues, scfres.ψ, i, l, psp, atom_position)
         ortho_orbital = [ortho_lowdin(orbital_ik) for orbital_ik in orbital]
         #println(orbital[1,1])
         for m1 in -l:l
             for m2 in -l:l
-
                 for band in 1:num_band #1:num_band
-                    sum_over_G_k_1 = zero(ComplexF64)
-                    sum_over_G_k_2 = zero(ComplexF64)
-                    for G_index in 1:G_k
-                        sum_over_G_k_1 += conj(ψ[ik][G_index,band]) * ortho_orbital[ik][G_index, m1+l+1]
-                        sum_over_G_k_2 += conj(ortho_orbital[ik][G_index, m2+l+1]) * ψ[ik][G_index,band]
-                    end
-                    
-                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
-                    basis.kweights[ik] * sum_over_G_k_1 * sum_over_G_k_2 #/n_k
+                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] * basis.kweights[ik] * ψ[ik][:,band]' * 
+                    ortho_orbital[ik][:, m1+l+1] * ortho_orbital[ik][:, m2+l+1]' * ψ[ik][:,band]
                 end
-                #println(ik, ",",m1,",", m2)
             end
         end
     end
     O
-end
-
-function build_proj_matrix(scfres, psp, basis, ψ, i, l, atom_position)
-    """
-    Occupation matrix for DFT+U implementation
-        Inputs: scfres, psudopotential(usp, in order to get the orbitals) wavefunctions, i, l 
-        #types?
-        Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
-    """
-    occupation = scfres.occupation
-
-    O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
-
-    
-    #Start calculating Occupation matrix for each atomic sites
-    #O_{σ,m1,m2} = Σ_{k, G_k, band} f_{k, band} * w_{k} |ψ_σ,k,band><proj_m1|proj_m2><ψ_σ,k,band|
-    #=
-    for each k point, the number of G is defined, and so does the number of orbitals should be changed 
-    =#
-    for σ in 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
-        #println(σ, ik)
-        qs_cart = Gplusk_vectors_cart(basis, basis.kpoints[ik])
-        G_k = size(ψ[ik], 1)
-        num_band = size(ψ[ik], 2)
-        n_k = length(ψ)
-
-        orbital = compute_atom_fourier(basis, scfres.eigenvalues, scfres.ψ, i, l, psp, atom_position)
-
-        #println(orbital[1,1])
-        for m1 in -l:l
-            for m2 in -l:l
-
-                for band in 1:num_band #1:num_band
-                    sum_over_G_k_1 = zero(ComplexF64)
-                    sum_over_G_k_2 = zero(ComplexF64)
-                    for G_index in 1:G_k
-                        sum_over_G_k_1 += orbital[ik][G_index, m1+l+1]
-                        sum_over_G_k_2 += conj(orbital[ik][G_index, m2+l+1])
-                    end
-                    
-                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
-                    basis.kweights[ik] * sum_over_G_k_1 * sum_over_G_k_2 #/n_k
-                end
-                #println(ik, ",",m1,",", m2)
-            end
-        end
-    end
-    O
-end
-
-function rearrange_complex_numbers(matrices::Vector{Matrix{ComplexF64}})
-    # Determine the dimensions of the matrices
-    m = size(matrices[1], 2) # number of columns
-    G = [size(matrix, 1) for matrix in matrices] # G(k) for each matrix
-    
-    # Calculate the total number of columns in the rearranged matrix
-    total_columns = sum(G) * m
-    
-    # Initialize the new matrix
-    rearranged_matrix = Matrix{ComplexF64}(undef, m, total_columns)
-    
-    # Initialize the column index
-    col_index = 1
-    
-    # Iterate over each matrix
-    for matrix in matrices
-        # Iterate over each column of the current matrix
-        for col in 1:m
-            # Get the complex numbers in the current column
-            column_values = matrix[:, col]
-            
-            # Copy the values into the rearranged matrix
-            a = size(matrix,1)
-            rearranged_matrix[col, col_index:(col_index+a-1)] .= column_values
-            
-            # Update the column index
-            col_index += a
-        end
-    end
-    
-    return rearranged_matrix
-end
-
-function undo_rearrange_complex_numbers(rearranged_matrix::Matrix{ComplexF64}, G::Vector{Int})
-    # Determine the number of matrices
-    k = length(G)
-    
-    # Determine the number of columns in each matrix
-    m = size(rearranged_matrix, 1)
-    
-    # Initialize the vector of matrices
-    matrices = Vector{Matrix{ComplexF64}}(undef, k)
-    
-    # Initialize the column index
-    col_index = 1
-    
-    # Iterate over each matrix
-    for i in 1:k
-        # Calculate the number of columns for the current matrix
-        num_columns = G[i] * m
-        
-        # Initialize the current matrix
-        matrix = Matrix{ComplexF64}(undef, G[i], m)
-        
-        # Iterate over each column of the current matrix
-        for col in 1:m
-            # Extract values from the rearranged matrix and assign them to the current column of the matrix
-            matrix[:, col] .= rearranged_matrix[col, col_index:col_index+G[i]-1]
-            
-            # Update the column index
-            col_index += G[i]
-        end
-        
-        # Store the current matrix in the vector of matrices
-        matrices[i] = matrix
-    end
-    
-    return matrices
 end
 
 function compute_atom_fourier(basis, eigenvalues, ψ, i::Integer, l::Integer, psp, position)
@@ -199,50 +62,6 @@ function compute_atom_fourier(basis, eigenvalues, ψ, i::Integer, l::Integer, ps
     end
     return atom_fourier ./ sqrt(basis.model.unit_cell_volume)
     #projs ./ (basis.model.unit_cell_volume)
-end
-
-function compute_amn(
-    basis::PlaneWaveBasis, ψ::AbstractVector{<:AbstractMatrix{<:Complex}},
-    guess::Function; spin::Integer=1,
-)
-    kpts = krange_spin(basis, spin)
-    ψs = ψ[kpts]  # ψ for the selected spin
-
-    n_kpts = length(kpts)
-    n_bands = size(ψs[1], 2)
-    # I call once `guess` to get the n_wann, to avoid having to pass `n_wann`
-    # as an argument.
-    ϕk = guess(basis.kpoints[kpts[1]])
-    n_wann = size(ϕk, 2)
-    A = Wannier.zeros_gauge(eltype(ψs[1]), n_kpts, n_bands, n_wann)
-    println(typeof(A), length(A))
-
-    # G_vectors in reduced coordinates.
-    # The dot product is computed in the Fourier space.
-    for (ik, kpt) in enumerate(basis.kpoints[kpts])
-        ψk = ψs[ik]
-        ik != 1 && (ϕk = guess(kpt))
-        size(ϕk) == (size(ψk, 1), n_wann) || error(
-            "ik=$(ik), guess function returns wrong size $(size(ϕk)) != $((size(ψk, 1), n_wann))")
-        A[ik] .= ψk' * ϕk
-    end
-    A
-end
-
-function guess_amn_psp(basis::PlaneWaveBasis)
-    model = basis.model
-
-    # keep only pseudopotential atoms and positions
-    psp_groups = [group for group in model.atom_groups
-                  if model.atoms[first(group)] isa ElementPsp]
-    psps = [model.atoms[first(group)].psp for group in psp_groups]
-    psp_positions = [model.positions[group] for group in psp_groups]
-
-    isempty(psp_groups) && error("No pseudopotential atoms found in the model.")
-    guess(kpt) = build_projection_vectors_pswfcs(basis, kpt, psps, psp_positions)
-
-    # Lowdin orthonormalization
-    ortho_lowdin ∘ guess
 end
 
 function ortho_lowdin(A::AbstractMatrix)

@@ -23,7 +23,7 @@ positions = psp_positions[1]
 orbital_name = "3D"
 indices = DFTK.find_orbital_indices(orbital_name, psp.pswfc_labels)
 
-occupation_matrix_1 = DFTK.build_occupation_matrix(scfres, psps[1], scfres.basis, scfres.ψ, indices[2], indices[1], psp_positions[1][1])
+@time occupation_matrix_1 = DFTK.build_occupation_matrix(scfres, psps[1], scfres.basis, scfres.ψ, indices[2], indices[1], psp_positions[1][1])
 occupation_matrix_2 = DFTK.build_occupation_matrix(scfres, psps[3], scfres.basis, scfres.ψ, indices[2], indices[1], psp_positions[3][1])
 #occ_spin_up_1 = occupation_matrix_1[1]
 
