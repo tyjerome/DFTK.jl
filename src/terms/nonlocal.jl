@@ -70,7 +70,7 @@ end
             # We compute the forces from the irreductible BZ; they are symmetrized later.
             G_plus_k = Gplusk_vectors(basis, kpt)
             G_plus_k_cart = to_cpu(Gplusk_vectors_cart(basis, kpt))
-            form_factors = build_form_factors(element.psp, G_plus_k_cart)
+            form_factors = atomic_centered_function_form_factors(element.psp, G_plus_k_cart, Projector())
             for idx in group
                 r = model.positions[idx]
                 structure_factors = [cis2pi(-dot(p, r)) for p in G_plus_k]
@@ -173,7 +173,7 @@ function build_projection_vectors(basis::PlaneWaveBasis{T}, kpt::Kpoint,
     for (psp, positions) in zip(psps, psp_positions)
         # Compute position-independent form factors
         G_plus_k_cart = to_cpu(Gplusk_vectors_cart(basis, kpt))
-        form_factors = build_form_factors(psp, G_plus_k_cart)
+        form_factors = atomic_centered_function_form_factors(psp, G_plus_k_cart, Projector())
 
         # Combine with structure factors
         for r in positions
@@ -193,45 +193,98 @@ function build_projection_vectors(basis::PlaneWaveBasis{T}, kpt::Kpoint,
 end
 
 """
-Build form factors (Fourier transforms of projectors) for an atom centered at 0.
+Build Fourier transform factors of a atomic function centered at 0.
 """
-function build_form_factors(psp, G_plus_k::AbstractVector{Vec3{TT}}) where {TT}
+abstract type AtomicFunction end
+
+struct Projector <: AtomicFunction end
+struct Wavefunction <: AtomicFunction end
+
+function atomic_centered_function_form_factors(psp::NormConservingPsp, 
+                                               G_plus_ks::AbstractVector{<:AbstractVector{Vec3{TT}}},
+                                               atfc::AtomicFunction) where {TT}
     T = real(TT)
 
-    # Pre-compute the radial parts of the non-local projectors at unique |p| to speed up
+    # Pre-compute the radial parts of the non-local atomic functions at unique |p| to speed up
     # the form factor calculation (by a lot). Using a hash map gives O(1) lookup.
 
-    # Maximum number of projectors over angular momenta so that form factors
-    # for a given `p` can be stored in an `nproj x (lmax + 1)` matrix.
-    n_proj_max = maximum(l -> count_n_proj_radial(psp, l), 0:psp.lmax; init=0)
+    # Maximum number of atomic functions over angular momenta so that form factors
+    # for a given `p` can be stored in an `natfc x (lmax + 1)` matrix.
+    lmax = count_lmax(psp, atfc)
+    n_atfc_max = maximum(l -> count_n_atfc_radial(psp, l, atfc), 0:lmax; init=0)
 
     radials = IdDict{T,Matrix{T}}()  # IdDict for Dual compatibility
-    for p in G_plus_k
-        p_norm = norm(p)
-        if !haskey(radials, p_norm)
-            radials_p = Matrix{T}(undef, n_proj_max, psp.lmax + 1)
-            for l = 0:psp.lmax, iproj_l = 1:count_n_proj_radial(psp, l)
-                radials_p[iproj_l, l+1] = eval_psp_projector_fourier(psp, iproj_l, l, p_norm)
+    for G_plus_k in G_plus_ks
+        for p in G_plus_k
+            p_norm = norm(p)
+            if !haskey(radials, p_norm)
+                radials_p = Matrix{T}(undef, n_atfc_max, psp.lmax + 1)
+                for l = 0:lmax, iatfc_l = 1:count_n_atfc_radial(psp, l, atfc)
+                    radials_p[iatfc_l, l+1] = eval_psp_atfc_fourier(psp, iatfc_l, l, p_norm, atfc)
+                end
+                radials[p_norm] = radials_p
             end
-            radials[p_norm] = radials_p
         end
     end
 
-    form_factors = Matrix{Complex{T}}(undef, length(G_plus_k), count_n_proj(psp))
-    for (ip, p) in enumerate(G_plus_k)
-        radials_p = radials[norm(p)]
-        count = 1
-        for l = 0:psp.lmax, m = -l:l
-            # see "Fourier transforms of centered functions" in the docs for the formula
-            angular = (-im)^l * ylm_real(l, m, p)
-            for iproj_l = 1:count_n_proj_radial(psp, l)
-                form_factors[ip, count] = radials_p[iproj_l, l+1] * angular
-                count += 1
+    form_factors = Vector{Matrix{Complex{T}}}(undef, length(G_plus_ks))
+    n_atfc = count_n_atfc(psp, atfc)
+    for (ik, G_plus_k) in enumerate(G_plus_ks)
+        form_factors_ik = Matrix{Complex{T}}(undef, length(G_plus_k), n_atfc)
+        for (ip, p) in enumerate(G_plus_k)
+            radials_p = radials[norm(p)]
+            count = 1
+            for l = 0:lmax, m = -l:l
+                # see "Fourier transforms of centered functions" in the docs for the formula
+                angular = (-im)^l * ylm_real(l, m, p)
+                for iatfc_l = 1:count_n_atfc_radial(psp, l, atfc)
+                    form_factors_ik[ip, count] = radials_p[iatfc_l, l+1] * angular
+                    count += 1
+                end
             end
+            @assert count == count_n_atfc(psp, atfc) + 1
         end
-        @assert count == count_n_proj(psp) + 1
+        form_factors[ik] = form_factors_ik
     end
+
     form_factors
+end
+
+function atomic_centered_function_form_factors(psp, G_plus_k::AbstractVector{Vec3{TT}},
+                                               atfc::AtomicFunction) where {TT}
+    atomic_centered_function_form_factors(psp, [G_plus_k], atfc)[1]
+end
+
+function eval_psp_atfc_fourier(psp::NormConservingPsp, i, l, p::T, ::Projector)::T where {T<:Real}
+    eval_psp_projector_fourier(psp, i, l, p)
+end
+
+function eval_psp_atfc_fourier(psp::PspUpf, i, l, p::T, ::Wavefunction)::T where {T<:Real}
+    eval_psp_pswfc_fourier(psp, i, l, p)
+end
+
+function count_n_atfc_radial(psp::NormConservingPsp, l, ::Projector)
+    size(psp.h[l+1], 1)
+end
+
+function count_n_atfc_radial(psp::PspUpf, l, ::Wavefunction)
+    length(psp.r2_pswfcs[l+1])
+end
+
+count_lmax(psp::NormConservingPsp, ::Projector) = psp.lmax
+
+count_lmax(psp::PspUpf, ::Wavefunction) = psp.lmax - 1
+
+function count_n_atfc_radial(psp::NormConservingPsp, atfc::AtomicFunction)
+    sum(l -> count_n_atfc_radial(psp, l, atfc), 0:count_lmax(psp, atfc); init=0)::Int
+end
+
+function count_n_atfc(psp::NormConservingPsp, l::Integer, atfc::AtomicFunction)
+    count_n_atfc_radial(psp, l, atfc) * (2l + 1)
+end
+
+function count_n_atfc(psp::NormConservingPsp, atfc::AtomicFunction)
+    sum(l -> count_n_atfc(psp, l, atfc), 0:count_lmax(psp, atfc); init=0)::Int
 end
 
 # Helpers for phonon computations.

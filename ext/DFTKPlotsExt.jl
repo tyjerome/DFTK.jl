@@ -1,7 +1,7 @@
 module DFTKPlotsExt
 using Brillouin: KPath
 using DFTK
-using DFTK: is_metal, data_for_plotting, spin_components, default_band_εrange
+using DFTK: is_metal, data_for_plotting, spin_components, default_band_εrange, Wavefunction
 import DFTK: plot_dos, plot_bandstructure, plot_ldos, plot_pdos
 using Plots, Plots.PlotMeasures
 using Unitful
@@ -111,95 +111,94 @@ plot_dos(scfres; kwargs...) = plot_dos(scfres.basis, scfres.eigenvalues; scfres.
 function plot_ldos(basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
                   temperature=basis.model.temperature,
                   smearing=basis.model.smearing,
-                  εrange=default_band_εrange(eigenvalues; εF), n_points=1000, kwargs...)
-    # TODO Should also split this up into one stage doing the DOS computation
-    #      and one stage doing the DOS plotting (like now for the bands.)
-
-    n_spin = basis.model.n_spin_components
+                  εrange=default_band_εrange(eigenvalues; εF), n_points=1000, colors=:blues, ldos_xyz = [:,1,1], kwargs...)
     eshift = something(εF, 0.0)
     εs = range(austrip.(εrange)..., length=n_points)
 
     # Constant to convert from AU to the desired unit
     to_unit = ustrip(auconvert(unit, 1.0))
 
-    p = Plots.plot(; kwargs...)
-    spinlabels = spin_components(basis.model)
-    colors = [:blue, :red]
-    Dεs = compute_ldos.(εs, Ref(basis), Ref(eigenvalues), Ref(ψ); smearing, temperature)
-    for σ = 1:n_spin
-        D = [Dσ[σ] for Dσ in Dεs]
-        label = n_spin > 1 ? "LDOS $(spinlabels[σ]) spin" : "LDOS"
-        Plots.plot!(p, (εs .- eshift) .* to_unit, D; label, color=colors[σ])
+    # LDε has three dimensions (x, y, z)
+    # map on a single axis to plot the variation with εs
+    LDεs = dropdims.(compute_ldos.(εs, Ref(basis), Ref(eigenvalues), Ref(ψ); smearing, temperature); dims=4)
+    LDεs_slice = zeros(typeof(LDεs[1][1]), n_points, length(LDεs[1][ldos_xyz...]))
+    for (i,LDε) in enumerate(LDεs)
+        LDεs_slice[i,:] = LDε[ldos_xyz...]
     end
+    p = heatmap(1:size(LDεs_slice,2), (εs .- eshift) .* to_unit, LDεs_slice; color=colors)
     if !isnothing(εF)
-        Plots.vline!(p, [0.0], label="εF", color=:green, lw=1.5)
+        Plots.hline!(p, [0.0], label="εF", color=:green, lw=1.5)
     end
 
     if isnothing(εF)
-        Plots.xlabel!(p, "eigenvalues  ($(string(unit)))")
+        Plots.ylabel!(p, "eigenvalues  ($(string(unit)))")
     else
-        Plots.xlabel!(p, "eigenvalues -ε_F  ($(string(unit)))")
+        Plots.ylabel!(p, "eigenvalues -ε_F  ($(string(unit)))")
     end
     p
 end
 plot_ldos(scfres; kwargs...) = plot_ldos(scfres.basis, scfres.eigenvalues, scfres.ψ; scfres.εF, kwargs...)
 
-function plot_pdos(p, i::Integer, l::Integer, iatom::Integer, basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
-    temperature=basis.model.temperature,
-    smearing=basis.model.smearing,
-    εrange=default_band_εrange(eigenvalues; εF), n_points=1000, kwargs...)
-
+function plot_pdos(basis, pdos, pdos_label, xs, dos_plot)
     n_spin = basis.model.n_spin_components
+    spinlabels = spin_components(basis.model)
+    pdos_size = Int(size(pdos, 1) / n_spin)
+
+    for σ in 1:n_spin
+        PD = pdos[1:pdos_size.+(σ-1)*pdos_size, :]
+        for (l, pdos_label_l) in enumerate(pdos_label)
+            label = n_spin > 1 ? "$(pdos_label_l)$(spinlabels[σ]) spin" : "$(pdos_label_l)"
+            Plots.plot!(dos_plot, xs, PD[:, l]; label)
+        end
+    end
+    dos_plot
+end
+function plot_pdos(scfres; atoms=nothing, 
+                   εF=scfres.εF, unit=u"hartree",
+                   εrange=default_band_εrange(scfres.eigenvalues; εF), 
+                   n_points=1000, kwargs...)
+    dos_plot = plot_dos(scfres; εF=εF, unit=unit, εrange=εrange, n_points=n_points, kwargs...)
+
     eshift = something(εF, 0.0)
     εs = range(austrip.(εrange)..., length=n_points)
-
     # Constant to convert from AU to the desired unit
     to_unit = ustrip(auconvert(unit, 1.0))
+    xs = (εs .- eshift) .* to_unit
 
-    spinlabels = spin_components(basis.model)
-    colbar = [collect(palette(:tab20)), collect(palette(:tab20b))]
+    scfres_unfold = DFTK.unfold_bz(scfres) # Plot pdos need unfolded symmetries.
 
-    l_orbital = l_orbital_name(l)
-    pdos = compute_pdos(εs, i, l, iatom, basis, eigenvalues, ψ)
-    pname = basis.model.atoms[iatom].psp.pswfc_labels[l+1][i]
-    for σ in 1:n_spin
-        D = pdos[σ]
-        for m = 1:2l+1
-            label = n_spin > 1 ? "$(pname)$(l_orbital[m]) $(spinlabels[σ]) spin" : "$(pname)$(l_orbital[m])"
-            Plots.plot!(p, (εs .- eshift) .* to_unit, D[:, m]; label, color=colbar[σ][l^2+m])
-        end
+    # If no atoms are indicated, the pdos of all atoms are drawn.
+    if atoms == nothing
+        atoms = [first(group) for group in scfres_unfold.basis.model.atom_groups]
     end
-    p
-end
 
-function plot_pdos(i::Integer, l::Integer, iatom::Integer, scfres; kwargs...) 
-    p = plot_dos(scfres; kwargs...)
-    scfres_unfold = DFTK.unfold_bz(scfres)
-    plot_pdos(p, i, l, iatom, scfres_unfold.basis, scfres_unfold.eigenvalues, scfres_unfold.ψ; scfres_unfold.εF, kwargs...)
-end
+    for iatom in atoms
+        psp = scfres_unfold.basis.model.atoms[iatom].psp
+        pdos_label = psp.pswfc_labels
+        pdos = compute_pdos(scfres_unfold; iatom=iatom, ε=εs)
 
-function plot_pdos(iatom::Integer, scfres; kwargs...)
-    p = plot_dos(scfres; kwargs...)
-    scfres_unfold = DFTK.unfold_bz(scfres)
-    psp = scfres.basis.model.atoms[iatom].psp
-    for l = 0:psp.lmax-1
-        for i = 1:length(psp.r2_pswfcs[l+1])
-            plot_pdos(p, i, l, iatom, scfres_unfold.basis, scfres_unfold.eigenvalues, scfres_unfold.ψ; scfres_unfold.εF, kwargs...)
-        end
+        # summing all angular components for a given l, i
+        lmax = count_lmax(psp, Wavefunction())
+        n_atfc_radial = count_n_atfc_radial(psp, Wavefunction())
+        pdos_label = Vector{String}(undef, n_atfc_radial)
+        pdos_li = zeros(typeof(pdos[1]), size(pdos,1), n_atfc_radial)
+        count = 1
+        mfet_count = 1 # angular fetching in pdos
+        for l = 0:lmax
+            il_n = count_n_atfc_radial(psp, l, Wavefunction())
+            for il = 1:il_n
+                mfet = mfet_count .+ il_n .* (collect(1:2l+1) .- 1)
+                pdos_label[count] = psp.pswfc_labels[l+1][il]
+                pdos_li[:, count] = sum(pdos[:, mfet], dims=2)
+                count += 1
+                mfet_count += 1
+            end
+            mfet_count = sum(x -> count_n_atfc(psp, x, Wavefunction()) , 0:l; init=1)
+        end  
+        pdos_label = String(scfres_unfold.basis.model.atoms[iatom].symbol) * "-" .* pdos_label
+        dos_plot = plot_pdos(scfres_unfold.basis, pdos_li, pdos_label, xs, dos_plot)
     end
-    p
-end
-
-function l_orbital_name(l::Integer)
-    if l == 0
-        return [" "]
-    elseif l == 1
-        return ["y","z","x"]
-    elseif l == 2
-        return ["xy", "yz", "z^2", "xz", "x^2-y^2"]
-    elseif  l == 3
-        return ["y(3x^2-y^2)", "xyz", "yz^2", "z^3", "xz^2", "z(x^2-y^2)", "x(x^2-3y^2)"]
-    end
+    dos_plot
 end
 
 end
