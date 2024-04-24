@@ -23,10 +23,10 @@ basis = PlaneWaveBasis(model; Ecut=15, kgrid=[4, 4, 4], symmetries_respect_rgrid
 scfres = self_consistent_field(basis, tol=1e-8)
 
 ## Plot the DOS
-plot_dos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3, εrange=(-0.3, 0.6))
+plot_dos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3)
 
 ## Plot the local DOS about a single axis
-plot_ldos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3, εrange=(-0.3, 0.6), ldos_xyz = [:, 10, 10])
+plot_ldos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3, n_points=100, ldos_xyz=[:, 10, 10])
 
 ## Plot the projected DOS
-plot_pdos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature=5e-3, εrange=(-0.3, 0.6))
+plot_pdos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature=5e-3, εrange=(-0.3, 0.5))

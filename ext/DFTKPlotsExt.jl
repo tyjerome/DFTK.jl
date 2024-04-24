@@ -111,7 +111,7 @@ plot_dos(scfres; kwargs...) = plot_dos(scfres.basis, scfres.eigenvalues; scfres.
 function plot_ldos(basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
                   temperature=basis.model.temperature,
                   smearing=basis.model.smearing,
-                  εrange=default_band_εrange(eigenvalues; εF), n_points=1000, colors=:blues, ldos_xyz = [:,1,1], kwargs...)
+                  εrange=default_band_εrange(eigenvalues; εF), n_points=1000, colors=:blues, ldos_xyz=[:,1,1], kwargs...)
     eshift = something(εF, 0.0)
     εs = range(austrip.(εrange)..., length=n_points)
 
