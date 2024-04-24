@@ -18,15 +18,15 @@ atoms = [Si, Si]
 positions = [ones(3) / 8, -ones(3) / 8]
 
 ## Run SCF
-model = model_LDA(lattice, atoms, positions; temperature=5e-3)
-basis = PlaneWaveBasis(model; Ecut=25, kgrid=[10, 10, 10], symmetries_respect_rgrid=true)
+model = model_LDA(lattice, atoms, positions)
+basis = PlaneWaveBasis(model; Ecut=15, kgrid=[4, 4, 4], symmetries_respect_rgrid=true)
 scfres = self_consistent_field(basis, tol=1e-8)
 
 ## Plot the DOS
-plot_dos(scfres; εrange=(-0.3, 0.6))
+plot_dos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3, εrange=(-0.3, 0.6))
 
 ## Plot the local DOS about a single axis
-plot_ldos(scfres; εrange=(-0.3, 0.6), ldos_xyz = [:, 10, 10])
+plot_ldos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature = 5e-3, εrange=(-0.3, 0.6), ldos_xyz = [:, 10, 10])
 
 ## Plot the projected DOS
-plot_pdos(scfres; εrange=(-0.3, 0.6))
+plot_pdos(scfres; smearing=DFTK.Smearing.FermiDirac(), temperature=5e-3, εrange=(-0.3, 0.6))

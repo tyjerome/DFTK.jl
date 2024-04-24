@@ -1,7 +1,7 @@
 module DFTKPlotsExt
 using Brillouin: KPath
 using DFTK
-using DFTK: is_metal, data_for_plotting, spin_components, default_band_εrange, Wavefunction
+using DFTK: is_metal, data_for_plotting, spin_components, default_band_εrange
 import DFTK: plot_dos, plot_bandstructure, plot_ldos, plot_pdos
 using Plots, Plots.PlotMeasures
 using Unitful
@@ -139,25 +139,13 @@ function plot_ldos(basis, eigenvalues, ψ; εF=nothing, unit=u"hartree",
 end
 plot_ldos(scfres; kwargs...) = plot_ldos(scfres.basis, scfres.eigenvalues, scfres.ψ; scfres.εF, kwargs...)
 
-function plot_pdos(basis, pdos, pdos_label, xs, dos_plot)
-    n_spin = basis.model.n_spin_components
-    spinlabels = spin_components(basis.model)
-    pdos_size = Int(size(pdos, 1) / n_spin)
-
-    for σ in 1:n_spin
-        PD = pdos[1:pdos_size.+(σ-1)*pdos_size, :]
-        for (l, pdos_label_l) in enumerate(pdos_label)
-            label = n_spin > 1 ? "$(pdos_label_l)$(spinlabels[σ]) spin" : "$(pdos_label_l)"
-            Plots.plot!(dos_plot, xs, PD[:, l]; label)
-        end
-    end
-    dos_plot
-end
 function plot_pdos(scfres; atoms=nothing, 
                    εF=scfres.εF, unit=u"hartree",
+                   temperature=scfres.basis.model.temperature,
+                   smearing=scfres.basis.model.smearing,
                    εrange=default_band_εrange(scfres.eigenvalues; εF), 
                    n_points=1000, kwargs...)
-    dos_plot = plot_dos(scfres; εF=εF, unit=unit, εrange=εrange, n_points=n_points, kwargs...)
+    dos_plot = plot_dos(scfres; εF, unit, temperature, smearing, εrange, n_points, kwargs...)
 
     eshift = something(εF, 0.0)
     εs = range(austrip.(εrange)..., length=n_points)
@@ -175,17 +163,18 @@ function plot_pdos(scfres; atoms=nothing,
     for iatom in atoms
         psp = scfres_unfold.basis.model.atoms[iatom].psp
         pdos_label = psp.pswfc_labels
-        pdos = compute_pdos(scfres_unfold; iatom=iatom, ε=εs)
+        pdos = compute_pdos(εs, scfres_unfold.basis, scfres_unfold.eigenvalues, scfres_unfold.ψ, iatom; temperature, smearing)
 
         # summing all angular components for a given l, i
-        lmax = count_lmax(psp, Wavefunction())
-        n_atfc_radial = count_n_atfc_radial(psp, Wavefunction())
-        pdos_label = Vector{String}(undef, n_atfc_radial)
-        pdos_li = zeros(typeof(pdos[1]), size(pdos,1), n_atfc_radial)
+        lmax = psp.lmax - 1
+        n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
+        n_funs_radial = sum(n_funs_per_l)
+        pdos_label = Vector{String}(undef, n_funs_radial)
+        pdos_li = zeros(typeof(pdos[1]), size(pdos, 1), n_funs_radial)
         count = 1
         mfet_count = 1 # angular fetching in pdos
         for l = 0:lmax
-            il_n = count_n_atfc_radial(psp, l, Wavefunction())
+            il_n = n_funs_per_l[l+1]
             for il = 1:il_n
                 mfet = mfet_count .+ il_n .* (collect(1:2l+1) .- 1)
                 pdos_label[count] = psp.pswfc_labels[l+1][il]
@@ -193,10 +182,14 @@ function plot_pdos(scfres; atoms=nothing,
                 count += 1
                 mfet_count += 1
             end
-            mfet_count = sum(x -> count_n_atfc(psp, x, Wavefunction()) , 0:l; init=1)
-        end  
+            mfet_count = sum(x -> n_funs_per_l[x+1] * (2x + 1), 0:l; init=1)
+        end
         pdos_label = String(scfres_unfold.basis.model.atoms[iatom].symbol) * "-" .* pdos_label
-        dos_plot = plot_pdos(scfres_unfold.basis, pdos_li, pdos_label, xs, dos_plot)
+
+        # plot pdos of i-th atom
+        for ifuns = 1:n_funs_radial
+            Plots.plot!(dos_plot, xs, pdos_li[:, ifuns], label=pdos_label[ifuns])
+        end
     end
     dos_plot
 end

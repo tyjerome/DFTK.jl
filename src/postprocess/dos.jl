@@ -70,7 +70,7 @@ end
 """
 Projected density of states at energy ε
 """
-function compute_pdos(ε, basis, eigenvalues, projs;
+function compute_pdos(ε, basis, eigenvalues, ψ, iatom::Integer;
                       smearing=basis.model.smearing,
                       temperature=basis.model.temperature)
 
@@ -78,31 +78,20 @@ function compute_pdos(ε, basis, eigenvalues, projs;
         error("compute_pdos only supports finite temperature")
     end
     filled_occ = filled_occupation(basis.model)
+    projs = compute_pdos_projs(basis, eigenvalues, ψ, basis.model.atoms[iatom].psp, basis.model.positions[iatom])
 
-    D = zeros(typeof(ε), basis.model.n_spin_components, size(projs[1], 2))
-    for σ = 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
-        for (iband, εnk) in enumerate(eigenvalues[ik])
-            enred = (εnk - ε) / temperature
-            D[σ, :] .-= (filled_occ .* basis.kweights[ik] .* projs[ik][iband,:] 
-                        ./ temperature
-                        .* Smearing.occupation_derivative(smearing, enred))
+    D = zeros(typeof(ε[1]), length(ε), size(projs[1], 2))
+    for (i, iε) in enumerate(ε) 
+        for (ik, projs_ik) in enumerate(projs)
+            @views for (iband, εnk) in enumerate(eigenvalues[ik])
+                enred = (εnk - iε) / temperature
+                D[i, :] .-= (filled_occ .* basis.kweights[ik] .* projs_ik[iband,:] 
+                            ./ temperature
+                            .* Smearing.occupation_derivative(smearing, enred))
+            end
         end
     end
     D = mpi_sum(D, basis.comm_kpts)
-end
-function compute_pdos(ε, basis, eigenvalues, ψ, psp, position; kwargs...)
-    projs = compute_pdos_projs(basis, eigenvalues, ψ, psp, position)
-    D = zeros(typeof(ε[1]), basis.model.n_spin_components * length(ε), size(projs[1], 2))
-    for (i, ix) in enumerate(ε)
-        Dx = compute_pdos(ix, basis, eigenvalues, projs; kwargs...)
-        for σ = 1 : basis.model.n_spin_components
-            D[i+(σ-1)*length(ε), :] = Dx[σ, :]
-        end
-    end
-    D
-end
-function compute_pdos(ε, basis, eigenvalues, ψ, iatom::Integer; kwargs...)
-    compute_pdos(ε, basis, eigenvalues, ψ, basis.model.atoms[iatom].psp, basis.model.positions[iatom]; kwargs...)
 end
 function compute_pdos(scfres::NamedTuple; iatom=1, ε=scfres.εF, kwargs...)
     scfres = unfold_bz(scfres)
@@ -120,14 +109,18 @@ end
 function compute_pdos_projs(basis, eigenvalues, ψ, psp::PspUpf, position)
     position = vector_red_to_cart(basis.model, position)
     G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
-    fourier_form = atomic_centered_function_form_factors(psp, G_plus_k_all, Wavefunction())
+    # Build Fourier transform factors centered at 0.
+    lmax = psp.lmax - 1
+    n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
+    eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p)
+    fourier_form = atomic_centered_function_form_factors(eval_psp_fourier, G_plus_k_all, lmax, n_funs_per_l)
 
-    projs = Vector{Matrix}(undef, length(eigenvalues))
+    projs = Vector{Matrix}(undef, length(basis.kpoints))
     for (ik, ψk) in enumerate(ψ)
         fourier_form_ik = fourier_form[ik]
         structure_factor_ik = exp.(-im .*[dot(position, Gik) for Gik in G_plus_k_all[ik]])
-        @views for iproj = 1:count_n_atfc(psp, Wavefunction())
-            fourier_form_ik[:, iproj] .= 
+        @views for iproj = 1:size(fourier_form_ik, 2)
+            fourier_form_ik[:, iproj] .=
                 structure_factor_ik .* fourier_form_ik[:, iproj] ./ sqrt(basis.model.unit_cell_volume)
             fourier_form_ik[:, iproj] .= 
                 fourier_form_ik[:, iproj] / norm(fourier_form_ik[:, iproj])
