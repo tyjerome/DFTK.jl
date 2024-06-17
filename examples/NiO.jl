@@ -28,7 +28,7 @@ positions = [[0.00 0.00 0.00],
 positions = [zeros(3), ones(3)/2, ones(3)/4, 3*ones(3)/4]
 
 #Initial magnetic moments: in QE example, it is 0.5 and -0.5, (makes almost no difference)
-magnetic_moments = [1, -1, 0, 0];
+magnetic_moments = [0.5, -0.5, 0, 0];
 
 model = model_LDA(lattice, atoms, positions ; magnetic_moments, temperature=0.01, smearing=Smearing.MarzariVanderbilt())
 basis = PlaneWaveBasis(model; Ecut=60, kgrid=[2,2,2])

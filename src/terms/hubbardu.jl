@@ -17,7 +17,14 @@ implementing Hubbard model to dft (DFT+U)
 function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer, atom_position)
     """
     Occupation matrix for DFT+U implementation
-        Inputs: scfres, psudopotential(usp, in order to get the orbitals) wavefunctions, i, l 
+        Inputs: 
+        1)scfres, 
+        2)psudopotential(usp, in order to get the orbitals), 
+        3)basis, 
+        4)wavefunctions ψ, 
+        5)n : principal quantum number , 
+        6)l : angular quantum number,
+        7)atom_position : atomic position in the unitcell
         #types?
         Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
     """
@@ -39,7 +46,10 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
         n_k = length(ψ)
 
         orbital = compute_atom_fourier(basis, scfres.eigenvalues, scfres.ψ, i, l, psp, atom_position)
-        ortho_orbital = [ortho_lowdin(orbital_ik) for orbital_ik in orbital]
+
+        #ortho_orbital = [ortho_lowdin(rearrange_columns(orbital_ik)) for orbital_ik in orbital]
+        #ortho_orbital = [ortho_lowdin(orbital_ik) for orbital_ik in orbital]
+        ortho_orbital = orbital
         #println(orbital[1,1])
         for m1 in -l:l
             for m2 in -l:l
@@ -47,13 +57,35 @@ function build_occupation_matrix(scfres, psp, basis, ψ, i::Integer, l::Integer,
                 for band in 1:num_band #1:num_band
                     O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
                     basis.kweights[ik] * ψ[ik][:,band]' * ortho_orbital[ik][:, m1+l+1] * 
-                    ortho_orbital[ik][:, m2+l+1] * ψ[ik][:,band] #/n_k
+                    ortho_orbital[ik][:, m2+l+1]' * ψ[ik][:,band] #/n_k
                 end
                 #println(ik, ",",m1,",", m2)
             end
         end
     end
     O
+end
+
+
+
+function rearrange_columns(orbital::Matrix{T}) where T
+    #In DFTK, the orbitals first read are arranged as -l, -l+1, ... -1, 0, +1, ...., l-1, l
+    #In QE, it is like 0, +1, -1, ... , l, -l
+    #This function changes the order of orbital from DFTK-like to QE-like
+
+    # Get the number of orbitals and ms values
+    Gs, ms = size(orbital)
+
+    # Calculate the value of l
+    l = (ms - 1) ÷ 2
+
+    # Generate the new order list [0, +1, -1, ..., +l, -l]
+    new_order = [0; collect(1:l); collect(-1:-1:-l)]
+
+    # Rearrange the columns of the orbital matrix according to the new order
+    rearranged_orbital = orbital[:, [i + l + 1 for i in new_order]]
+
+    return rearranged_orbital
 end
 
 function build_proj_matrix(scfres, psp, basis, ψ, i, l, atom_position)
@@ -180,15 +212,19 @@ function compute_atom_fourier(basis, eigenvalues, ψ, i::Integer, l::Integer, ps
     ik: indice of kpoints
     igk : indice of Gk_cart
     il : m
+
+    1/V^0.5 * exp(-im * (R * G)) * (-im)^l * ylm_real(l, m, p) *
     """
     atom_fourier = Vector{Matrix}(undef, length(eigenvalues))
     position = DFTK.vector_red_to_cart(basis.model, position)
 
     for (ik, ψk) in enumerate(ψ)
+
         Gk_cart = Gplusk_vectors_cart(basis, basis.kpoints[ik])
         fourier_form_k = atom_fourier_form(i, l, psp, Gk_cart)
         atom_shift = [dot(position, Gi) for Gi in Gk_cart]
         atom_fourier_k = exp.(-im * atom_shift) .* fourier_form_k #2pi_no need
+
         atom_fourier[ik] = atom_fourier_k
     end
     return atom_fourier ./ sqrt(basis.model.unit_cell_volume)
@@ -240,11 +276,15 @@ function guess_amn_psp(basis::PlaneWaveBasis)
 end
 
 function ortho_lowdin(A::AbstractMatrix)
+    #simple Lowdin orthogonalization
     F = svd(A)
     return F.U * F.Vt
 end
 
 function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{SVector{3, TT}}) where {TT}
+    """
+    fourier transfromation of atomic orbitals R(r) * Ylm
+    """
     T = real(TT)
     @assert psp isa PspUpf
     # Pre-compute the radial parts of the  pseudo-atomic wavefunctions at unique |p| to speed up
@@ -264,7 +304,7 @@ function atom_fourier_form(i::Integer, l::Integer, psp, G_plus_k::AbstractVector
         count = 1
         for m = -l:l
             # see "Fourier transforms of centered functions" in the docs for the formula
-            angular = (-im)^l * ylm_real(l, m, p)
+            angular = (-im)^l * ylm_real(l, m, p) #makes (-1)^
             form_factors[ip, m+l+1] = radials_p * angular
         end
     end
@@ -286,42 +326,6 @@ function atom_angular(i::Integer, l::Integer, psp, G_plus_k::AbstractVector{SVec
         end
     end
     angulars
-end
-
-function build_projection_vectors_pswfcs(basis::PlaneWaveBasis{T}, kpt::Kpoint,
-    psps, psp_positions) where {T}
-    unit_cell_volume = basis.model.unit_cell_volume
-    n_pswfc = count_n_pswfc(psps, psp_positions)
-    n_G    = length(G_vectors(basis, kpt))
-    proj_vectors = zeros(Complex{T}, n_G, n_pswfc)
-    qs = to_cpu(Gplusk_vectors(basis, kpt))
-
-    # Compute the columns of proj_vectors = 1/√Ω pihat(k+G)
-    # Since the pi are translates of each others, pihat(k+G) decouples as
-    # pihat(q) = ∫ p(r-R) e^{-iqr} dr = e^{-iqR} phat(q).
-    # The first term is the structure factor, the second the form factor.
-    offset = 0  # offset into proj_vectors
-    for (psp, positions) in zip(psps, psp_positions)
-        # Compute position-independent form factors
-        qs_cart = to_cpu(Gplusk_vectors_cart(basis, kpt))
-        form_factors = build_form_factors_pswfcs(psp, qs_cart)
-
-        # Combine with structure factors
-        for r in positions
-        # k+G in this formula can also be G, this only changes an unimportant phase factor
-            structure_factors = map(q -> cis2pi(-dot(q, r)), qs)
-            @views for ipswfc = 1:count_n_pswfc(psp)
-                proj_vectors[:, offset+ipswfc] .= (
-                structure_factors .* form_factors[:, ipswfc] ./ sqrt(unit_cell_volume)
-                )
-            end
-            offset += count_n_pswfc(psp)
-        end
-    end
-    @assert offset == n_pswfc
-
-    # Offload potential values to a device (like a GPU)
-    to_device(basis.architecture, proj_vectors)
 end
 
 function find_orbital_indices(element::String, matrix::Vector{Vector{String}})
