@@ -78,7 +78,7 @@ function compute_pdos(ε, basis, eigenvalues, ψ, iatom::Integer;
         error("compute_pdos only supports finite temperature")
     end
     filled_occ = filled_occupation(basis.model)
-    projs = compute_pdos_projs(basis, eigenvalues, ψ, basis.model.atoms[iatom].psp, basis.model.positions[iatom])
+    projs = compute_pdos_projs(basis, ψ, basis.model.atoms[iatom].psp, basis.model.positions[iatom])
 
     D = zeros(typeof(ε[1]), length(ε), size(projs[1], 2))
     for (i, iε) in enumerate(ε) 
@@ -106,7 +106,7 @@ end
 # dose not orthogonalize all wavefunctions,
 # requires symmetrization with respect to kpoints and BZ symmetry (now achieved by unfolding all the quantities)
 # Maybe refactored in the future
-function compute_pdos_projs(basis, eigenvalues, ψ, psp::PspUpf, position)
+function compute_pdos_projs(basis, ψ, psp::PspUpf, position)
     position = vector_red_to_cart(basis.model, position)
     G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
     # Build Fourier transform factors centered at 0.

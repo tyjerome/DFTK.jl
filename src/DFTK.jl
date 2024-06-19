@@ -228,6 +228,8 @@ include("postprocess/current.jl")
 export phonon_modes
 include("postprocess/phonon.jl")
 
+include("atomic.jl")
+
 # Workarounds
 include("workarounds/dummy_inplace_fft.jl")
 include("workarounds/forwarddiff_rules.jl")
