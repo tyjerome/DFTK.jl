@@ -45,6 +45,7 @@ breaks_symmetries(::ExternalFromFourier) = true
 
 include("nonlocal.jl")
 include("hartree.jl")
+include("hubbardu.jl")
 include("local_nonlinearity.jl")
 include("xc.jl")
 include("ewald.jl")
