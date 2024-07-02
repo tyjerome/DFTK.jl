@@ -1,0 +1,40 @@
+FeO
+FeO Wustite whithin DFT+U using standard initial ns matrices
+ &control
+    calculation = 'scf'
+    restart_mode='from_scratch',
+    prefix='feo_af',
+    pseudo_dir = './pseudo',
+    tprnfor = .true., tstress=.true.
+ /
+ &system
+    ibrav= 0, celldm(1)=8.19, nat= 4, ntyp= 3, nspin = 2
+    ecutwfc = 30.0, ecutrho = 240.0, nspin=2,
+    starting_magnetization(1)= 0.5,
+    starting_magnetization(2)=-0.5,
+    occupations='smearing', smearing='mv', degauss=0.01,
+ /
+ &electrons
+    mixing_mode = 'plain'
+    mixing_beta = 0.3
+    conv_thr =  1.0d-10
+    mixing_fixed_ns = 0
+ /
+ATOMIC_SPECIES
+ Ni1  1.  Ni.upf
+ Ni2  1.  Ni.upf
+ O    1.  O.upf
+ATOMIC_POSITIONS {crystal}
+ Ni1 0.0  0.0  0.0
+ Ni2 0.5  0.5  0.5
+ O   0.25 0.25 0.25
+ O   0.75 0.75 0.75
+CELL_PARAMETERS {alat}
+ 0.50 0.50 1.00
+ 0.50 1.00 0.50
+ 1.00 0.50 0.50
+K_POINTS {automatic}
+2 2 2 0 0 0
+HUBBARD {atomic}
+U Ni1-3d 0.0001
+U Ni2-3d 0.0001
