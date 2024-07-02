@@ -13,7 +13,7 @@ positions = [zeros(3)];
 kgrid = [3,3,3] 
 Ecut = 30
 magnetic_moments = [4];
-model = model_LDA(lattice, atoms, positions; temperature = 5e-3, smearing = Smearing.Gaussian(), symmetries = false, magnetic_moments)
+model = model_LDA(lattice, atoms, positions; temperature = 0.005, smearing = Smearing.Gaussian(), symmetries = false, magnetic_moments)
 basis = PlaneWaveBasis(model; Ecut, kgrid)
 ρ0 = guess_density(basis, magnetic_moments)
 scfres = self_consistent_field(basis, tol=1e-8; ρ=ρ0);
