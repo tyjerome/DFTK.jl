@@ -9,7 +9,7 @@ lattice = a * [[-1  1  1];
                [ 1 -1  1];
                [ 1  1 -1]]
 atoms     = [ElementPsp(:Fe; psp=load_psp(artifact"pd_nc_sr_lda_standard_0.4.1_upf/Fe.upf"))]
-positions = [zeros(3)];
+positions = [[0.01, 0.02, 0.03]];
 kgrid = [3,3,3] 
 Ecut = 30
 magnetic_moments = [4];
@@ -18,4 +18,5 @@ basis = PlaneWaveBasis(model; Ecut, kgrid)
 ρ0 = guess_density(basis, magnetic_moments)
 scfres = self_consistent_field(basis, tol=1e-8; ρ=ρ0);
 scfres.energies
-save_scfres("scfres_Fe.jld2", scfres)
+save_scfres("scfres_Fe_moveatom.jld2", scfres)
+
