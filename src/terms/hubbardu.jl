@@ -14,7 +14,7 @@ implementing Hubbard model to dft (DFT+U)
 """
 #calculate the occupation matrix for certain atom.
 
-function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, i::Integer, l::Integer, atom_position)
+function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_label)
     """
     Occupation matrix for DFT+U implementation
         Inputs: 
@@ -29,9 +29,9 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, i::Integer,
         Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
     """
     occupation = scfres.occupation
-
+    l = find_orbital_indices(orbital_label, psp.pswfc_labels)[1]
     O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
-
+    count = count_orbital_position(basis, atom_index, orbital_label)
     
     #Start calculating Occupation matrix for each atomic sites
     #O_{σ,m1,m2} = Σ_{k, G_k, band} f_{k, band} * w_{k} |ψ_σ,k,band><proj_m1|proj_m2><ψ_σ,k,band|
@@ -40,32 +40,42 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, i::Integer,
     =#
     for σ in 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
         #println(σ, ik)
-        qs_cart = Gplusk_vectors_cart(basis, basis.kpoints[ik])
-        G_k = size(ψ[ik], 1)
+
         num_band = size(ψ[ik], 2)
-        n_k = length(ψ)
 
         orbital = atomic_wavefunction(basis, atom_index)
-
-        #println(ortho_orbital[1]'*ortho_orbital[1])
-        #ortho_orbital = [ortho_lowdin(orbital_ik) for orbital_ik in orbital]
-        #println(orbital[1,1])
+        
         for m1 in -l:l
             for m2 in -l:l
 
                 for band in 1:num_band #1:num_band
-                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] * #YJ try ^2
-                    basis.kweights[ik] * ψ[ik][:,band]' * orbital[ik][5+m1+l+1] * #try^2
-                    orbital[ik][5+m2+l+1]' * ψ[ik][:,band] #/n_k
+                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
+                    basis.kweights[ik] * ψ[ik][:,band]' * orbital[ik][count+m1+l+1] *
+                    orbital[ik][count+m2+l+1]' * ψ[ik][:,band] #/n_k
                 end
-                #println(ik, ",",m1,",", m2)
             end
         end
     end
     O
 end
 
-
+function count_orbital_position(basis, atom_index, orbital_label)
+    psp = basis.model.atoms[atom_index].psp
+    index = find_orbital_indices(orbital_label, psp.pswfc_labels)
+    @assert psp isa PspUpf
+    lmax = psp.lmax
+    n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
+    #count the number of functions which has smaller l than the specific orbital
+    count = 0
+    for l = 0:index[1]-1
+        n = n_funs_per_l[l+1]
+        count += (2l+1)*n
+    end
+    for n = 1:index[2]-1
+        count += (2*index[1]-1)*n
+    end
+    count
+end
 
 function rearrange_columns(orbital::Matrix{T}) where T
     #In DFTK, the orbitals first read are arranged as -l, -l+1, ... -1, 0, +1, ...., l-1, l
