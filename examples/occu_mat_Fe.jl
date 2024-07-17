@@ -9,7 +9,7 @@ using Interpolations: linear_interpolation
 using DFTK: ylm_real, eval_psp_pswfc_fourier, krange_spin
 
 #get the results from the NiO example
-scfres = load_scfres("scfres_Fe_moveatom.jld2")
+scfres = load_scfres("scfres_Fe_nomag_zero_E20_K666_T1e2.jld2")
 #propertynames(scfres)
 basis = scfres.basis
 psp = scfres.basis.model.atoms[1].psp

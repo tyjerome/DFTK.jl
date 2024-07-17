@@ -8,7 +8,7 @@ a = 5.42352  # Bohr
 lattice = a * [[-1  1  1];
                [ 1 -1  1];
                [ 1  1 -1]]
-atoms     = [ElementPsp(:Fe; psp=load_psp(artifact"pd_nc_sr_lda_standard_0.4.1_upf/Fe.upf"))]
+atoms     = [ElementPsp(:Fe; psp=load_psp(artifact"pd_nc_sr_lda_standard_0.4.1_upf/Fe.upf"; rcut = 10))]
 positions = [zeros(3)];
 kgrid = [3,3,3] 
 Ecut = 30
