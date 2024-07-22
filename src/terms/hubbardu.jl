@@ -30,6 +30,8 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_lab
     """
     occupation = scfres.occupation
     l = find_orbital_indices(orbital_label, psp.pswfc_labels)[1]
+    n = find_orbital_indices(orbital_label, psp.pswfc_labels)[2]
+    nfun_l = length(psp.pswfc_labels[l+1])
     O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
     count = count_orbital_position(basis, atom_index, orbital_label)
     orbital = atomic_wavefunction(basis, atom_index)
@@ -49,8 +51,8 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_lab
 
                 for band in 1:num_band #1:num_band
                     O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
-                    basis.kweights[ik] * ψ[ik][:,band]' * orbital[ik][count+m1+l+1] *
-                    orbital[ik][count+m2+l+1]' * ψ[ik][:,band] #/n_k
+                    basis.kweights[ik] * ψ[ik][:,band]' * orbital[ik][count+m1*nfun_l+l+n] *
+                    orbital[ik][count+m2*nfun_l+l+n]' * ψ[ik][:,band] #/n_k
                 end
             end
         end
