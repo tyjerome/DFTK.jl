@@ -24,5 +24,5 @@ positions = psp_positions[1]
 orbital = DFTK.atomic_wavefunction(basis, 1)
 
 @time occupation_matrix_1 = DFTK.build_occupation_matrix(scfres, 1, psp, basis, scfres.ψ, "3D")
-
+@time occupation_matrix_ortho_1 = DFTK.build_occupation_matrix_ortho(scfres, 1, psp, basis, scfres.ψ, "3D")
 #Vhub = DFTK.hubbard_u_potential(4.5, 4.5, scfres, psp, basis, scfres.ψ, "3D", positions[1])

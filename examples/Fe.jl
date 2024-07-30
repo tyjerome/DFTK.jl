@@ -11,10 +11,11 @@ lattice = a * [[-1  1  1];
 atoms     = [ElementPsp(:Fe; psp=load_psp(artifact"pd_nc_sr_lda_standard_0.4.1_upf/Fe.upf"; rcut = 10))]
 positions = [zeros(3)];
 kgrid = [3,3,3] 
-Ecut = 30
+Ecut = 15
 magnetic_moments = [4];
 model = model_LDA(lattice, atoms, positions; temperature = 0.005, smearing = Smearing.Gaussian(), symmetries = false, magnetic_moments)
-basis = PlaneWaveBasis(model; Ecut, kgrid)
+fft_size = compute_fft_size(model, Ecut, kgrid; supersampling=2)
+basis = PlaneWaveBasis(model; Ecut, kgrid, fft_size)
 ρ0 = guess_density(basis, magnetic_moments)
 scfres = self_consistent_field(basis, tol=1e-8; ρ=ρ0);
 scfres.energies

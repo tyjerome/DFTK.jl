@@ -60,6 +60,124 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_lab
     O
 end
 
+function build_occupation_matrix_ortho(scfres, atom_index, psp, basis, ψ, orbital_label)
+    """
+    Occupation matrix for DFT+U implementation
+        Inputs: 
+        1)scfres, 
+        2)psudopotential(usp, in order to get the orbitals), 
+        3)basis, 
+        4)wavefunctions ψ, 
+        5)n : principal quantum number , -> i (check the pswfc_label)
+        6)l : angular quantum number,
+        7)atom_position : atomic position in the unitcell
+        #types?
+        Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
+    """
+    occupation = scfres.occupation
+    l = find_orbital_indices(orbital_label, psp.pswfc_labels)[1]
+    n = find_orbital_indices(orbital_label, psp.pswfc_labels)[2]
+    nfun_l = length(psp.pswfc_labels[l+1])
+    O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
+    count = count_orbital_position(basis, atom_index, orbital_label)
+    orbital = atomic_wavefunction(basis, atom_index)
+    
+    #Start calculating Occupation matrix for each atomic sites
+    #O_{σ,m1,m2} = Σ_{k, G_k, band} f_{k, band} * w_{k} |ψ_σ,k,band><proj_m1|proj_m2><ψ_σ,k,band|
+    #=
+    for each k point, the number of G is defined, and so does the number of orbitals should be changed 
+    =#
+    orbital_ortho = Vector(undef, length(basis.kpoints))
+    for σ in 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
+        orbital_ik = zeros(Complex, 2l+1, length(orbital[ik][1]))
+        order = 1
+        for m1 in -l:l
+            orbital_ik[order,:] = orbital[ik][count+m1*nfun_l+l+n]
+            order += 1
+        end
+        print(size(orbital_ik))        
+        #orbital_ortho_ik = ortho_lowdin(orbital_ik)
+        orbital_ortho_ik = undo_rearrange_columns(ortho_lowdin(rearrange_columns(orbital_ik)))
+        orbital_ortho[ik] = orbital_ortho_ik
+    end
+
+
+    for σ in 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
+        #println(σ, ik)
+
+        num_band = size(ψ[ik], 2)
+
+        for m1 in -l:l
+            for m2 in -l:l
+
+                for band in 1:num_band #1:num_band
+                    O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
+                    basis.kweights[ik] * ψ[ik][:,band]' * orbital_ortho[ik][m1+l+1,:] *
+                    orbital_ortho[ik][m2+l+1,:]' * ψ[ik][:,band] #/n_k
+                end
+            end
+        end
+    end
+    (;O, orbital_ortho)
+end
+
+
+function rearrange_columns(orbital::Matrix{T}) where T
+    # In DFTK, the orbitals first read are arranged as -l, -l+1, ... -1, 0, +1, ...., l-1, l
+    # In QE, it is like 0, +1, -1, +2, -2, ..., +l, -l
+    # This function changes the order of orbital from DFTK-like to QE-like
+
+    # Get the number of orbitals and ms values
+    Gs, ms = size(orbital)
+
+    # Calculate the value of l
+    l = (Gs - 1) ÷ 2
+
+    # Generate the QE order list [0, +1, -1, +2, -2, ..., +l, -l]
+    qe_order = [0]
+    for i in 1:l
+        push!(qe_order, i)
+        push!(qe_order, -i)
+    end
+
+    # Generate the original DFTK order list [-l, -l+1, ..., -1, 0, +1, ..., l]
+    dftk_order = collect(-l:l)
+
+    # Create a map from the QE order to the original DFTK order
+    index_map = Dict(dftk_order[i] => i for i in 1:Gs)
+
+    # Rearrange the columns of the orbital matrix back to the original DFTK order
+    rearranged_orbital = orbital[[index_map[i] for i in qe_order],:]
+
+    return rearranged_orbital
+end
+
+function undo_rearrange_columns(rearranged_orbital::Matrix{T}) where T
+    # Get the number of orbitals (Gs) and magnetic quantum numbers (ms)
+    Gs, ms = size(rearranged_orbital)
+
+    # Calculate the value of l
+    l = (Gs - 1) ÷ 2
+
+    # Generate the QE order list [0, +1, -1, +2, -2, ..., +l, -l]
+    qe_order = [0]
+    for i in 1:l
+        push!(qe_order, i)
+        push!(qe_order, -i)
+    end
+
+    # Generate the original DFTK order list [-l, -l+1, ..., -1, 0, +1, ..., l]
+    dftk_order = collect(-l:l)
+
+    # Create a map from the QE order to the original DFTK order
+    index_map = Dict(qe_order[i] => i for i in 1:Gs)
+
+    # Rearrange the columns of the orbital matrix back to the original DFTK order
+    original_orbital = rearranged_orbital[[index_map[i] for i in dftk_order],:]
+
+    return original_orbital
+end
+
 function count_orbital_position(basis, atom_index, orbital_label)
     psp = basis.model.atoms[atom_index].psp
     index = find_orbital_indices(orbital_label, psp.pswfc_labels)

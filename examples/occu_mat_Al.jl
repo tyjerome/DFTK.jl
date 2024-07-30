@@ -20,3 +20,4 @@ positions = psp_positions[1]
 orbital = DFTK.atomic_wavefunction(basis, 1)
 
 @time occupation_matrix_1 = DFTK.build_occupation_matrix(scfres, 1, psp, basis, scfres.ψ, "3P")
+@time occupation_matrix_ortho_1 = DFTK.build_occupation_matrix_ortho(scfres, 1, psp, basis, scfres.ψ, "3P")
