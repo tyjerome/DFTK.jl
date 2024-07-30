@@ -106,11 +106,11 @@ end
 # dose not orthogonalize all wavefunctions,
 # requires symmetrization with respect to kpoints and BZ symmetry (now achieved by unfolding all the quantities)
 # Maybe refactored in the future
-function compute_pdos_projs(basis, ψ, psp::PspUpf, position)
+function compute_pdos_projs(basis, ψ, psp::PspUpf, position) #TODO 
     position = vector_red_to_cart(basis.model, position)
     G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
     # Build Fourier transform factors centered at 0.
-    lmax = psp.lmax - 1
+    lmax = psp.lmax
     n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
     eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p)
     fourier_form = atomic_centered_function_form_factors(eval_psp_fourier, G_plus_k_all, lmax, n_funs_per_l)
@@ -130,6 +130,29 @@ function compute_pdos_projs(basis, ψ, psp::PspUpf, position)
    projs
 end
 
+function compute_pdos_projs_new(basis, ψ, atom_index) #TODO 
+    # Build Fourier transform factors centered at 0.
+    fourier_form = atomic_wavefunction(basis, atom_index)
+
+    projs = Vector{Matrix}(undef, length(basis.kpoints))
+    for (ik, ψk) in enumerate(ψ)
+        fourier_form_ik = stack(fourier_form[ik])
+        projs[ik] = abs2.(ψk' * fourier_form_ik)
+    end
+   projs
+end
+
+function compute_pdos_projs_new1(basis, ψ, atom_index) #TODO 
+    # Build Fourier transform factors centered at 0.
+    fourier_form = atomic_wavefunction(basis, atom_index)
+
+    projs = Vector{Matrix}(undef, length(basis.kpoints))
+    for (ik, ψk) in enumerate(ψ)
+        fourier_form_ik = stack(fourier_form[ik])
+        projs[ik] = (ψk' * fourier_form_ik)
+    end
+   projs
+end
 """
 Plot the density of states over a reasonable range. Requires to load `Plots.jl` beforehand.
 """
