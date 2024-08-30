@@ -1,0 +1,4 @@
+&DOS
+  prefix= 'si_lda',
+  outdir= '/out/'
+/

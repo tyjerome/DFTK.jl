@@ -10,7 +10,7 @@ lattice = a * [[-1  1  1];
                [ 1  1 -1]]
 atoms     = [ElementPsp(:Fe; psp=load_psp(artifact"pd_nc_sr_lda_standard_0.4.1_upf/Fe.upf"; rcut = 10))]
 positions = [zeros(3)];
-kgrid = [3,3,3] 
+kgrid = [11, 11, 11] 
 Ecut = 15
 magnetic_moments = [4];
 model = model_LDA(lattice, atoms, positions; temperature = 0.005, smearing = Smearing.Gaussian(), symmetries = false, magnetic_moments)

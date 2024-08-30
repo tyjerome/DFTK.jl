@@ -220,7 +220,7 @@ function atomic_centered_function_form_factors(fun::Function,
             if !haskey(radials, p_norm)
                 radials_p = Matrix{T}(undef, n_funs_max, lmax + 1)
                 for l = 0:lmax, ifuns_l = 1:n_funs_per_l[l+1]
-                    radials_p[ifuns_l, l+1] = fun( ifuns_l, l, p_norm)
+                    radials_p[ifuns_l, l+1] = fun(ifuns_l, l, p_norm)
                 end
                 radials[p_norm] = radials_p
             end

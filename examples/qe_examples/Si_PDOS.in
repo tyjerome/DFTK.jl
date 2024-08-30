@@ -1,0 +1,21 @@
+&PROJWFC
+   ! ngauss:
+   !     0  = Simple Gaussian (default)
+   !     1  = Methfessel-Paxton of order 1
+   !    -1  = Marzari-Vanderbilt \"cold smearing\"
+   !    -99 = Fermi-Dirac function
+   
+   ngauss  = 0 ,
+   degauss = 0.01 , ! in Ry
+   DeltaE  = 0.01 ,  ! in eV
+   Emax = 10
+   Emin = -10
+   
+   prefix  = 'si_lda' ,
+   outdir  = './out/' ,
+   filpdos = 'Si' ,
+   !lsym = .false.
+   lwrite_overlaps = .true.
+   !kresolveddos = .true.
+   !diag_basis = .true.
+/

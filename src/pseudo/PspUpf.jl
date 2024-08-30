@@ -133,6 +133,14 @@ function PspUpf(path; identifier=path, rcut=nothing)
             push!(pswfc_labels[l+1], pswfc_li["label"])
         end
     end
+    #=add the normalisation part
+    for i in 1:length(r2_pswfcs)
+        for j in 1:length(r2_pswfcs[i])
+            norm = DFTK.simpson(rgrid, (r2_pswfcs[i][j][2:end].^2)./(rgrid[2:end].^2))
+            r2_pswfcs[i][j] = r2_pswfcs[i][j]/sqrt(norm)
+        end
+    end
+    =#
 
     r2_ρion = pseudo["total_charge_density"] ./ (4π)
     r2_ρcore = rgrid .^ 2 .* get(pseudo, "core_charge_density", zeros(length(rgrid)))

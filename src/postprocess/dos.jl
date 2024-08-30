@@ -133,7 +133,7 @@ end
 function compute_pdos_projs_new(basis, ψ, atom_index) #TODO 
     # Build Fourier transform factors centered at 0.
     fourier_form = atomic_wavefunction(basis, atom_index)
-
+    
     projs = Vector{Matrix}(undef, length(basis.kpoints))
     for (ik, ψk) in enumerate(ψ)
         fourier_form_ik = stack(fourier_form[ik])
@@ -142,7 +142,21 @@ function compute_pdos_projs_new(basis, ψ, atom_index) #TODO
    projs
 end
 
-function compute_pdos_projs_new1(basis, ψ, atom_index) #TODO 
+function compute_pdos_projs_ortho(basis, ψ, atom_index) #TODO 
+    # Build Fourier transform factors centered at 0.
+    orbital = atomic_wavefunction(basis, atom_index)
+    
+    projs = Vector{Matrix}(undef, length(basis.kpoints))
+    ortho_orbital = Vector{Matrix}(undef, length(ψ))
+    for (ik, ψk) in enumerate(ψ)
+        ortho_orbital_ik = ortho_lowdin(stack(orbital[ik]))
+        ortho_orbital[ik] = ortho_orbital_ik
+        projs[ik] = abs2.(ψk' * ortho_orbital_ik)
+    end
+   (;projs, ortho_orbital)
+end
+
+function compute_pdos_projs_overlap(basis, ψ, atom_index) #TODO 
     # Build Fourier transform factors centered at 0.
     fourier_form = atomic_wavefunction(basis, atom_index)
 

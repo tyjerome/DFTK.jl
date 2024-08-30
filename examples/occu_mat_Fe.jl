@@ -27,6 +27,6 @@ orbital = DFTK.atomic_wavefunction(basis, 1)
 
 proj_dos_original = DFTK.compute_pdos_projs(basis, scfres.ψ, psp, positions[1])
 proj_dos_new = DFTK.compute_pdos_projs_new(basis, scfres.ψ, 1)
-proj_dos_new1 = DFTK.compute_pdos_projs_new1(basis, scfres.ψ, 1)
+proj_dos_new1 = DFTK.compute_pdos_projs_overlap(basis, scfres.ψ, 1)
 proj_dos_new - proj_dos_original
 #Vhub = DFTK.hubbard_u_potential(4.5, 4.5, scfres, psp, basis, scfres.ψ, "3D", positions[1])

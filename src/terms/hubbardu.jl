@@ -310,7 +310,7 @@ function u_potential_single(u::Float64, occ, proj_mat)
     return u * V
 end
 
-function hubbard_u_potential(u1::Float64, u2::Float64, scfres, atom_index, psp, basis, orbital_label)
+function hubbardu_potential_term(u1::Float64, scfres, atom_index, psp, basis, orbital_label)
     occ = build_occupation_matrix(scfres, atom_index, psp, basis, scfres.ψ, orbital_label)
     proj_mat = build_proj_matrix(scfres, atom_index, psp, basis, scfres.ψ, orbital_label)
     Vhub_1 = u_potential_single(u1, occ[1], proj_mat[1])
@@ -318,6 +318,7 @@ function hubbard_u_potential(u1::Float64, u2::Float64, scfres, atom_index, psp, 
     Vhub = Vhub_1 + Vhub_2
     return real(Vhub)
 end
+
 #=
 struct TermHubbard <: Term
     ops::
@@ -332,51 +333,3 @@ end
     (; E, ops)
 end
 =#
-
-function compute_pdos_projs_original(basis, ψ, psp::PspUpf, position) #TODO 
-    position = vector_red_to_cart(basis.model, position)
-    G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
-    # Build Fourier transform factors centered at 0.
-    lmax = psp.lmax - 1
-    n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
-    eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p)
-    fourier_form = atomic_centered_function_form_factors(eval_psp_fourier, G_plus_k_all, lmax, n_funs_per_l)
-
-    projs = Vector{Matrix}(undef, length(basis.kpoints))
-    for (ik, ψk) in enumerate(ψ)
-        fourier_form_ik = fourier_form[ik]
-        structure_factor_ik = exp.(-im .*[dot(position, Gik) for Gik in G_plus_k_all[ik]])
-        @views for iproj = 1:size(fourier_form_ik, 2)
-            fourier_form_ik[:, iproj] .=
-                structure_factor_ik .* fourier_form_ik[:, iproj] ./ sqrt(basis.model.unit_cell_volume)
-            fourier_form_ik[:, iproj] .= 
-                fourier_form_ik[:, iproj] / norm(fourier_form_ik[:, iproj])
-        end
-        projs[ik] = abs2.(ψk' * fourier_form_ik)
-    end
-   projs
-end
-
-function compute_pdos_projs_newfunciton(basis, ψ, psp, position) #TODO 
-    position = vector_red_to_cart(basis.model, position)
-    G_plus_k_all = [to_cpu(Gplusk_vectors_cart(basis, basis.kpoints[ik])) for ik = 1:length(basis.kpoints)]
-    # Build Fourier transform factors centered at 0.
-    lmax = psp.lmax - 1
-    n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
-    eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p)
-    fourier_form = atomic_centered_function_form_factors(eval_psp_fourier, G_plus_k_all, lmax, n_funs_per_l)
-
-    projs = Vector{Matrix}(undef, length(basis.kpoints))
-    for (ik, ψk) in enumerate(ψ)
-        fourier_form_ik = fourier_form[ik]
-        structure_factor_ik = exp.(-im .*[dot(position, Gik) for Gik in G_plus_k_all[ik]])
-        @views for iproj = 1:size(fourier_form_ik, 2)
-            fourier_form_ik[:, iproj] .=
-                structure_factor_ik .* fourier_form_ik[:, iproj] ./ sqrt(basis.model.unit_cell_volume)
-            fourier_form_ik[:, iproj] .= 
-                fourier_form_ik[:, iproj] / norm(fourier_form_ik[:, iproj])
-        end
-        projs[ik] = abs2.(ψk' * fourier_form_ik)
-    end
-   projs
-end
