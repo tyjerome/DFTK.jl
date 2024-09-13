@@ -1,5 +1,5 @@
 
-     Program DOS v.7.3.1 starts on 25Aug2024 at 12:49:48 
+     Program PROJWFC v.7.3.1 starts on 10Sep2024 at 11:45:33 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -13,12 +13,12 @@
      Parallel version (MPI), running on     1 processors
 
      MPI processes distributed on     1 nodes
-     4798 MiB available memory on the printing compute node when the environment starts
+     3723 MiB available memory on the printing compute node when the environment starts
 
 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     Error in routine dos (1):
-     reading dos namelist
+     Error in routine do_projwfc (1):
+     reading projwfc namelist
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
      stopping ...

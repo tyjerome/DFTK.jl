@@ -1,5 +1,5 @@
 
-     Program PWSCF v.7.3.1 starts on 29Aug2024 at 22:32:27 
+     Program PWSCF v.7.3.1 starts on 10Sep2024 at 15:46:32 
 
      This program is part of the open-source Quantum ESPRESSO suite
      for quantum simulation of materials; please cite
@@ -13,9 +13,10 @@
      Parallel version (MPI), running on     1 processors
 
      MPI processes distributed on     1 nodes
-     6659 MiB available memory on the printing compute node when the environment starts
+     1664 MiB available memory on the printing compute node when the environment starts
 
-     Reading input from feo_standard.in
+     Waiting for input...
+     Reading input from standard input
 
      Current dimensions of program PWSCF are:
      Max number of different atomic species (ntypx) = 10
@@ -23,8 +24,6 @@
      Max angular momentum in pseudopotentials (lmaxx) =  4
      Message from routine volume:
      axis vectors are left-handed
-     Message from routine setup:
-     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
 
      Subspace diagonalization in iterative solution of the eigenvalue problem:
      a serial algorithm will be used
@@ -33,7 +32,7 @@
      G-vector sticks info
      --------------------
      sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
-     Sum        1061     539    163                17255     6111    1081
+     Sum        1061     539    171                17255     6111    1141
 
      Using Slab Decomposition
 
@@ -45,11 +44,11 @@
      number of atoms/cell      =            4
      number of atomic types    =            3
      number of electrons       =        44.00
-     number of Kohn-Sham states=           26
+     number of Kohn-Sham states=           22
      kinetic-energy cutoff     =      30.0000  Ry
      charge density cutoff     =     240.0000  Ry
-     scf convergence threshold =      1.0E-10
-     mixing beta               =       0.3000
+     scf convergence threshold =      4.0E-10
+     mixing beta               =       0.4000
      number of iterations used =            8  plain     mixing
      Exchange-correlation= SLA  PW   NOGX NOGC
                            (   1   4   0   0   0   0   0)
@@ -111,14 +110,20 @@
      Fe2              16.00     1.00000     Fe( 1.00)
      O                 6.00     1.00000     O ( 1.00)
 
-     Starting magnetic structure 
-     atomic species   magnetization
-     Fe1             0.500
-     Fe2            -0.500
-     O               0.000
+     No symmetry found
 
-     12 Sym. Ops., with inversion, found
 
+                                    s                        frac. trans.
+
+      isym =  1     identity                                     
+
+ cryst.   s( 1) = (     1          0          0      )
+                  (     0          1          0      )
+                  (     0          0          1      )
+
+ cart.    s( 1) = (  1.0000000  0.0000000  0.0000000 )
+                  (  0.0000000  1.0000000  0.0000000 )
+                  (  0.0000000  0.0000000  1.0000000 )
 
 
    Cartesian axes
@@ -129,419 +134,1425 @@
          3        O      tau(   3) = (   0.5000000   0.5000000   0.5000000  )
          4        O      tau(   4) = (   1.5000000   1.5000000   1.5000000  )
 
-     number of k points=     4  Marzari-Vanderbilt smearing, width (Ry)=  0.0100
+   Crystallographic axes
+
+     site n.     atom                  positions (cryst. coord.)
+         1        Fe1    tau(   1) = (  0.0000000  0.0000000  0.0000000  )
+         2        Fe2    tau(   2) = (  0.5000000  0.5000000  0.5000000  )
+         3        O      tau(   3) = (  0.2500000  0.2500000  0.2500000  )
+         4        O      tau(   4) = (  0.7500000  0.7500000  0.7500000  )
+
+     number of k points=    27
                        cart. coord. in units 2pi/alat
-        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.1250000
-        k(    2) = (  -0.7500000   0.2500000   0.2500000), wk =   0.3750000
-        k(    3) = (  -0.5000000  -0.5000000   0.5000000), wk =   0.3750000
-        k(    4) = (  -0.2500000  -0.2500000  -0.2500000), wk =   0.1250000
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0740741
+        k(    2) = (   0.5000000  -0.1666667  -0.1666667), wk =   0.0740741
+        k(    3) = (  -0.5000000   0.1666667   0.1666667), wk =   0.0740741
+        k(    4) = (  -0.1666667   0.5000000  -0.1666667), wk =   0.0740741
+        k(    5) = (   0.3333333   0.3333333  -0.3333333), wk =   0.0740741
+        k(    6) = (  -0.6666667   0.6666667   0.0000000), wk =   0.0740741
+        k(    7) = (   0.1666667  -0.5000000   0.1666667), wk =   0.0740741
+        k(    8) = (   0.6666667  -0.6666667   0.0000000), wk =   0.0740741
+        k(    9) = (  -0.3333333  -0.3333333   0.3333333), wk =   0.0740741
+        k(   10) = (  -0.1666667  -0.1666667   0.5000000), wk =   0.0740741
+        k(   11) = (   0.3333333  -0.3333333   0.3333333), wk =   0.0740741
+        k(   12) = (  -0.6666667   0.0000000   0.6666667), wk =   0.0740741
+        k(   13) = (  -0.3333333   0.3333333   0.3333333), wk =   0.0740741
+        k(   14) = (   0.1666667   0.1666667   0.1666667), wk =   0.0740741
+        k(   15) = (  -0.8333333   0.5000000   0.5000000), wk =   0.0740741
+        k(   16) = (   0.0000000  -0.6666667   0.6666667), wk =   0.0740741
+        k(   17) = (   0.5000000  -0.8333333   0.5000000), wk =   0.0740741
+        k(   18) = (  -0.5000000  -0.5000000   0.8333333), wk =   0.0740741
+        k(   19) = (   0.1666667   0.1666667  -0.5000000), wk =   0.0740741
+        k(   20) = (   0.6666667   0.0000000  -0.6666667), wk =   0.0740741
+        k(   21) = (  -0.3333333   0.3333333  -0.3333333), wk =   0.0740741
+        k(   22) = (   0.0000000   0.6666667  -0.6666667), wk =   0.0740741
+        k(   23) = (   0.5000000   0.5000000  -0.8333333), wk =   0.0740741
+        k(   24) = (  -0.5000000   0.8333333  -0.5000000), wk =   0.0740741
+        k(   25) = (   0.3333333  -0.3333333  -0.3333333), wk =   0.0740741
+        k(   26) = (   0.8333333  -0.5000000  -0.5000000), wk =   0.0740741
+        k(   27) = (  -0.1666667  -0.1666667  -0.1666667), wk =   0.0740741
+
+                       cryst. coord.
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0740741
+        k(    2) = (   0.0000000   0.0000000   0.3333333), wk =   0.0740741
+        k(    3) = (   0.0000000   0.0000000  -0.3333333), wk =   0.0740741
+        k(    4) = (   0.0000000   0.3333333   0.0000000), wk =   0.0740741
+        k(    5) = (   0.0000000   0.3333333   0.3333333), wk =   0.0740741
+        k(    6) = (   0.0000000   0.3333333  -0.3333333), wk =   0.0740741
+        k(    7) = (   0.0000000  -0.3333333   0.0000000), wk =   0.0740741
+        k(    8) = (   0.0000000  -0.3333333   0.3333333), wk =   0.0740741
+        k(    9) = (   0.0000000  -0.3333333  -0.3333333), wk =   0.0740741
+        k(   10) = (   0.3333333   0.0000000   0.0000000), wk =   0.0740741
+        k(   11) = (   0.3333333   0.0000000   0.3333333), wk =   0.0740741
+        k(   12) = (   0.3333333   0.0000000  -0.3333333), wk =   0.0740741
+        k(   13) = (   0.3333333   0.3333333   0.0000000), wk =   0.0740741
+        k(   14) = (   0.3333333   0.3333333   0.3333333), wk =   0.0740741
+        k(   15) = (   0.3333333   0.3333333  -0.3333333), wk =   0.0740741
+        k(   16) = (   0.3333333  -0.3333333   0.0000000), wk =   0.0740741
+        k(   17) = (   0.3333333  -0.3333333   0.3333333), wk =   0.0740741
+        k(   18) = (   0.3333333  -0.3333333  -0.3333333), wk =   0.0740741
+        k(   19) = (  -0.3333333   0.0000000   0.0000000), wk =   0.0740741
+        k(   20) = (  -0.3333333   0.0000000   0.3333333), wk =   0.0740741
+        k(   21) = (  -0.3333333   0.0000000  -0.3333333), wk =   0.0740741
+        k(   22) = (  -0.3333333   0.3333333   0.0000000), wk =   0.0740741
+        k(   23) = (  -0.3333333   0.3333333   0.3333333), wk =   0.0740741
+        k(   24) = (  -0.3333333   0.3333333  -0.3333333), wk =   0.0740741
+        k(   25) = (  -0.3333333  -0.3333333   0.0000000), wk =   0.0740741
+        k(   26) = (  -0.3333333  -0.3333333   0.3333333), wk =   0.0740741
+        k(   27) = (  -0.3333333  -0.3333333  -0.3333333), wk =   0.0740741
 
      Dense  grid:    17255 G-vectors     FFT dimensions: (  50,  50,  50)
 
      Smooth grid:     6111 G-vectors     FFT dimensions: (  36,  36,  36)
 
-     Estimated max dynamical RAM per process >      35.29 MB
+     Dynamical RAM for                 wfc:       0.26 MB
+
+     Dynamical RAM for     wfc (w. buffer):       7.16 MB
+
+     Dynamical RAM for           str. fact:       0.79 MB
+
+     Dynamical RAM for           local pot:       0.00 MB
+
+     Dynamical RAM for          nlocal pot:       0.72 MB
+
+     Dynamical RAM for                qrad:       3.73 MB
+
+     Dynamical RAM for          rho,v,vnew:       3.65 MB
+
+     Dynamical RAM for               rhoin:       1.22 MB
+
+     Dynamical RAM for            rho*nmix:       4.21 MB
+
+     Dynamical RAM for           G-vectors:       1.03 MB
+
+     Dynamical RAM for          h,s,v(r/c):       0.09 MB
+
+     Dynamical RAM for          <psi|beta>:       0.02 MB
+
+     Dynamical RAM for                 psi:       0.51 MB
+
+     Dynamical RAM for                hpsi:       0.51 MB
+
+     Dynamical RAM for      wfcinit/wfcrot:       0.67 MB
+
+     Estimated static dynamical RAM per process >      24.13 MB
+
+     Estimated max dynamical RAM per process >      29.47 MB
 
      Check: negative core charge=   -0.000037
-     Generating pointlists ...
-     new r_m :   0.2063 (alat units)  1.6892 (a.u.) for type    1
-     new r_m :   0.2063 (alat units)  1.6892 (a.u.) for type    2
-     new r_m :   0.2063 (alat units)  1.6892 (a.u.) for type    3
 
      Initial potential from superposition of free atoms
 
      starting charge      43.9994, renormalised to      44.0000
      Starting wfcs are   28 randomized atomic wfcs
 
-     total cpu time spent up to now is        0.8 secs
+     total cpu time spent up to now is        1.1 secs
 
      Self-consistent Calculation
 
-     iteration #  1     ecut=    30.00 Ry     beta= 0.30
+     iteration #  1     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.00E-02,  avg # of iterations =  3.9
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        1.2 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            48 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1640 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.00E-02,  avg # of iterations =  4.0
 
-     total energy              =    -551.17069269 Ry
-     estimated scf accuracy    <      10.29046402 Ry
+     total cpu time spent up to now is        2.2 secs
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.96 Bohr mag/cell
+     total energy              =    -548.39461960 Ry
+     estimated scf accuracy    <      11.70535341 Ry
 
-     iteration #  2     ecut=    30.00 Ry     beta= 0.30
+     iteration #  2     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.00E-02,  avg # of iterations =  2.6
 
-     total cpu time spent up to now is        1.6 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            54 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1632 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.00E-02,  avg # of iterations =  6.1
 
-     WARNING: integrated charge=    44.00215531, expected=    44.00000000
+     total cpu time spent up to now is        3.7 secs
 
-     total energy              =    -551.94905808 Ry
-     estimated scf accuracy    <       1.93824422 Ry
+     total energy              =    -551.00230739 Ry
+     estimated scf accuracy    <       5.03038269 Ry
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.82 Bohr mag/cell
-
-     iteration #  3     ecut=    30.00 Ry     beta= 0.30
+     iteration #  3     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  4.41E-03,  avg # of iterations =  1.8
 
-     total cpu time spent up to now is        2.0 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            54 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1632 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.00E-02,  avg # of iterations =  4.8
 
-     WARNING: integrated charge=    44.00479006, expected=    44.00000000
+     total cpu time spent up to now is        4.8 secs
 
-     total energy              =    -552.07153702 Ry
-     estimated scf accuracy    <       0.55454187 Ry
+     total energy              =    -551.67410507 Ry
+     estimated scf accuracy    <       0.26655000 Ry
 
-     total magnetization       =    -0.00 Bohr mag/cell
-     absolute magnetization    =     7.62 Bohr mag/cell
-
-     iteration #  4     ecut=    30.00 Ry     beta= 0.30
+     iteration #  4     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.26E-03,  avg # of iterations =  3.4
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        2.4 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            54 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1631 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     ethr =  6.06E-04,  avg # of iterations =  4.0
 
-     WARNING: integrated charge=    44.00187271, expected=    44.00000000
+     total cpu time spent up to now is        5.8 secs
 
-     total energy              =    -552.13139044 Ry
-     estimated scf accuracy    <       0.06857898 Ry
+     total energy              =    -551.68325477 Ry
+     estimated scf accuracy    <       0.07324265 Ry
 
-     total magnetization       =     0.02 Bohr mag/cell
-     absolute magnetization    =     7.47 Bohr mag/cell
-
-     iteration #  5     ecut=    30.00 Ry     beta= 0.30
+     iteration #  5     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.56E-04,  avg # of iterations =  5.4
 
-     total cpu time spent up to now is        2.8 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            54 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1633 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  1.66E-04,  avg # of iterations = 14.3
 
-     WARNING: integrated charge=    44.00161199, expected=    44.00000000
+     total cpu time spent up to now is        7.6 secs
 
-     total energy              =    -552.14803061 Ry
-     estimated scf accuracy    <       0.01595465 Ry
+     total energy              =    -551.72072330 Ry
+     estimated scf accuracy    <       1.83219516 Ry
 
-     total magnetization       =    -0.08 Bohr mag/cell
-     absolute magnetization    =     7.19 Bohr mag/cell
-
-     iteration #  6     ecut=    30.00 Ry     beta= 0.30
+     iteration #  6     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  3.63E-05,  avg # of iterations =  1.6
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        3.1 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1628 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  2 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     ethr =  1.66E-04,  avg # of iterations = 12.3
 
-     WARNING: integrated charge=    44.00088038, expected=    44.00000000
+     total cpu time spent up to now is        9.4 secs
 
-     total energy              =    -552.14734873 Ry
-     estimated scf accuracy    <       0.00475787 Ry
+     total energy              =    -551.86326512 Ry
+     estimated scf accuracy    <       0.74068869 Ry
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.19 Bohr mag/cell
-
-     iteration #  7     ecut=    30.00 Ry     beta= 0.30
+     iteration #  7     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.08E-05,  avg # of iterations =  3.8
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        3.5 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1627 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.66E-04,  avg # of iterations =  2.4
 
-     WARNING: integrated charge=    44.00026811, expected=    44.00000000
+     total cpu time spent up to now is       10.2 secs
 
-     total energy              =    -552.14835375 Ry
-     estimated scf accuracy    <       0.00309964 Ry
+     total energy              =    -551.81277940 Ry
+     estimated scf accuracy    <       0.71045303 Ry
 
-     total magnetization       =    -0.01 Bohr mag/cell
-     absolute magnetization    =     7.24 Bohr mag/cell
-
-     iteration #  8     ecut=    30.00 Ry     beta= 0.30
+     iteration #  8     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  7.04E-06,  avg # of iterations =  3.5
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        3.8 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1627 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  2 eigenvalues not converged
+     ethr =  1.66E-04,  avg # of iterations =  6.9
 
-     WARNING: integrated charge=    44.00007191, expected=    44.00000000
+     total cpu time spent up to now is       11.4 secs
 
-     total energy              =    -552.14905455 Ry
-     estimated scf accuracy    <       0.00009958 Ry
+     total energy              =    -551.84733934 Ry
+     estimated scf accuracy    <       0.03367613 Ry
 
-     total magnetization       =    -0.00 Bohr mag/cell
-     absolute magnetization    =     7.19 Bohr mag/cell
-
-     iteration #  9     ecut=    30.00 Ry     beta= 0.30
+     iteration #  9     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  2.26E-07,  avg # of iterations =  3.1
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        4.2 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1627 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.65E-05,  avg # of iterations =  4.7
 
-     WARNING: integrated charge=    44.00002480, expected=    44.00000000
+     total cpu time spent up to now is       12.4 secs
 
-     total energy              =    -552.14903063 Ry
-     estimated scf accuracy    <       0.00016571 Ry
+     total energy              =    -551.85200627 Ry
+     estimated scf accuracy    <       0.20877260 Ry
 
-     total magnetization       =    -0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
-
-     iteration # 10     ecut=    30.00 Ry     beta= 0.30
+     iteration # 10     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  2.26E-07,  avg # of iterations =  2.0
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        4.6 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1626 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.65E-05,  avg # of iterations =  1.0
 
-     WARNING: integrated charge=    43.99999093, expected=    44.00000000
+     total cpu time spent up to now is       13.1 secs
 
-     total energy              =    -552.14905192 Ry
-     estimated scf accuracy    <       0.00000678 Ry
+     total energy              =    -551.84264272 Ry
+     estimated scf accuracy    <       0.20217708 Ry
 
-     total magnetization       =    -0.00 Bohr mag/cell
-     absolute magnetization    =     7.19 Bohr mag/cell
-
-     iteration # 11     ecut=    30.00 Ry     beta= 0.30
+     iteration # 11     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.54E-08,  avg # of iterations =  3.9
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        5.0 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.65E-05,  avg # of iterations =  1.7
 
-     WARNING: integrated charge=    43.99999399, expected=    44.00000000
+     total cpu time spent up to now is       13.9 secs
 
-     total energy              =    -552.14905366 Ry
-     estimated scf accuracy    <       0.00000310 Ry
+     total energy              =    -551.83986295 Ry
+     estimated scf accuracy    <       0.13312687 Ry
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.19 Bohr mag/cell
-
-     iteration # 12     ecut=    30.00 Ry     beta= 0.30
+     iteration # 12     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  7.04E-09,  avg # of iterations =  3.5
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        5.3 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.65E-05,  avg # of iterations =  2.3
 
-     total energy              =    -552.14905462 Ry
-     estimated scf accuracy    <       0.00000049 Ry
+     total cpu time spent up to now is       14.7 secs
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
+     total energy              =    -551.84092640 Ry
+     estimated scf accuracy    <       0.04755093 Ry
 
-     iteration # 13     ecut=    30.00 Ry     beta= 0.30
+     iteration # 13     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  1.11E-09,  avg # of iterations =  3.4
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        5.7 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.65E-05,  avg # of iterations =  1.6
 
-     total energy              =    -552.14905472 Ry
-     estimated scf accuracy    <       0.00000001 Ry
+     total cpu time spent up to now is       15.5 secs
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
+     total energy              =    -551.84165328 Ry
+     estimated scf accuracy    <       0.02496783 Ry
 
-     iteration # 14     ecut=    30.00 Ry     beta= 0.30
+     iteration # 14     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  2.36E-11,  avg # of iterations =  3.9
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        6.1 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  5.67E-05,  avg # of iterations =  1.8
 
-     total energy              =    -552.14905475 Ry
-     estimated scf accuracy    <          3.0E-09 Ry
+     total cpu time spent up to now is       16.3 secs
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
+     total energy              =    -551.84277218 Ry
+     estimated scf accuracy    <       0.00922541 Ry
 
-     iteration # 15     ecut=    30.00 Ry     beta= 0.30
+     iteration # 15     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  6.87E-12,  avg # of iterations =  1.4
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     total cpu time spent up to now is        6.4 secs
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  6.3
 
-     total energy              =    -552.14905475 Ry
-     estimated scf accuracy    <          2.1E-09 Ry
+     total cpu time spent up to now is       17.3 secs
 
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
+     total energy              =    -551.84767452 Ry
+     estimated scf accuracy    <       0.05037281 Ry
 
-     iteration # 16     ecut=    30.00 Ry     beta= 0.30
+     iteration # 16     ecut=    30.00 Ry     beta= 0.40
      Davidson diagonalization with overlap
-     ethr =  4.73E-12,  avg # of iterations =  3.5
-     Minimization algorithm failed to find Fermi energy: reverting to bisection
-     Possible cause: smearing is larger than the electronic band-gap.
 
-     Magnetic moment per site  (integrated on atomic sphere of radius R)
-     atom   1 (R=0.206)  charge= 13.1868  magn=  3.1542
-     atom   2 (R=0.206)  charge= 13.1868  magn= -3.1542
-     atom   3 (R=0.206)  charge=  5.7083  magn=  0.0000
-     atom   4 (R=0.206)  charge=  5.7083  magn=  0.0000
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.8
 
-     total cpu time spent up to now is        6.7 secs
+     total cpu time spent up to now is       18.1 secs
+
+     total energy              =    -551.84654703 Ry
+     estimated scf accuracy    <       0.06239343 Ry
+
+     iteration # 17     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  2.2
+
+     total cpu time spent up to now is       19.0 secs
+
+     total energy              =    -551.84623715 Ry
+     estimated scf accuracy    <       0.08002941 Ry
+
+     iteration # 18     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.6
+
+     total cpu time spent up to now is       19.8 secs
+
+     total energy              =    -551.84540412 Ry
+     estimated scf accuracy    <       0.08473215 Ry
+
+     iteration # 19     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       20.6 secs
+
+     total energy              =    -551.84516227 Ry
+     estimated scf accuracy    <       0.07991046 Ry
+
+     iteration # 20     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.3
+
+     total cpu time spent up to now is       21.4 secs
+
+     total energy              =    -551.84464386 Ry
+     estimated scf accuracy    <       0.07489433 Ry
+
+     iteration # 21     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.4
+
+     total cpu time spent up to now is       22.2 secs
+
+     total energy              =    -551.84479800 Ry
+     estimated scf accuracy    <       0.07008130 Ry
+
+     iteration # 22     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       22.9 secs
+
+     total energy              =    -551.84482255 Ry
+     estimated scf accuracy    <       0.06841634 Ry
+
+     iteration # 23     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       23.7 secs
+
+     total energy              =    -551.83426422 Ry
+     estimated scf accuracy    <       0.06705436 Ry
+
+     iteration # 24     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  2.10E-05,  avg # of iterations = 13.7
+
+     total cpu time spent up to now is       25.3 secs
+
+     total energy              =    -551.83762513 Ry
+     estimated scf accuracy    <       0.56488144 Ry
+
+     iteration # 25     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  7.9
+
+     total cpu time spent up to now is       26.6 secs
+
+     total energy              =    -551.84290389 Ry
+     estimated scf accuracy    <       0.07435866 Ry
+
+     iteration # 26     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  3.1
+
+     total cpu time spent up to now is       27.4 secs
+
+     total energy              =    -551.84376957 Ry
+     estimated scf accuracy    <       0.02139903 Ry
+
+     iteration # 27     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       28.2 secs
+
+     total energy              =    -551.84394825 Ry
+     estimated scf accuracy    <       0.02039947 Ry
+
+     iteration # 28     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       28.9 secs
+
+     total energy              =    -551.84414086 Ry
+     estimated scf accuracy    <       0.01912262 Ry
+
+     iteration # 29     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       29.7 secs
+
+     total energy              =    -551.84392200 Ry
+     estimated scf accuracy    <       0.01848111 Ry
+
+     iteration # 30     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       30.5 secs
+
+     total energy              =    -551.84287880 Ry
+     estimated scf accuracy    <       0.01586011 Ry
+
+     iteration # 31     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1621 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  6.0
+
+     total cpu time spent up to now is       31.4 secs
+
+     total energy              =    -551.84533431 Ry
+     estimated scf accuracy    <       0.01954435 Ry
+
+     iteration # 32     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       32.2 secs
+
+     total energy              =    -551.84525231 Ry
+     estimated scf accuracy    <       0.01998665 Ry
+
+     iteration # 33     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       33.0 secs
+
+     total energy              =    -551.84459591 Ry
+     estimated scf accuracy    <       0.02031602 Ry
+
+     iteration # 34     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       33.8 secs
+
+     total energy              =    -551.84408362 Ry
+     estimated scf accuracy    <       0.01755360 Ry
+
+     iteration # 35     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1620 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       34.6 secs
+
+     total energy              =    -551.84368939 Ry
+     estimated scf accuracy    <       0.01474252 Ry
+
+     iteration # 36     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.10E-05,  avg # of iterations =  2.3
+
+     total cpu time spent up to now is       35.4 secs
+
+     total energy              =    -551.84405233 Ry
+     estimated scf accuracy    <       0.00431650 Ry
+
+     iteration # 37     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  9.81E-06,  avg # of iterations =  3.9
+
+     total cpu time spent up to now is       36.3 secs
+
+     total energy              =    -551.84461935 Ry
+     estimated scf accuracy    <       0.00062952 Ry
+
+     iteration # 38     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1619 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     ethr =  1.43E-06,  avg # of iterations =  6.6
+
+     total cpu time spent up to now is       37.4 secs
+
+     total energy              =    -551.84510732 Ry
+     estimated scf accuracy    <       0.01052815 Ry
+
+     iteration # 39     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1617 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.43E-06,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       38.3 secs
+
+     total energy              =    -551.84507527 Ry
+     estimated scf accuracy    <       0.01047448 Ry
+
+     iteration # 40     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1609 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.43E-06,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       39.2 secs
+
+     total energy              =    -551.84469502 Ry
+     estimated scf accuracy    <       0.01039756 Ry
+
+     iteration # 41     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1606 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     ethr =  1.43E-06,  avg # of iterations =  6.4
+
+     total cpu time spent up to now is       40.3 secs
+
+     total energy              =    -551.84489735 Ry
+     estimated scf accuracy    <       0.00043869 Ry
+
+     iteration # 42     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1605 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  9.97E-07,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       41.3 secs
+
+     total energy              =    -551.84491159 Ry
+     estimated scf accuracy    <       0.00049807 Ry
+
+     iteration # 43     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1605 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  9.97E-07,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       42.1 secs
+
+     total energy              =    -551.84504175 Ry
+     estimated scf accuracy    <       0.00054505 Ry
+
+     iteration # 44     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1604 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  2 eigenvalues not converged
+     ethr =  9.97E-07,  avg # of iterations =  9.2
+
+     total cpu time spent up to now is       43.9 secs
+
+     total energy              =    -551.84672338 Ry
+     estimated scf accuracy    <       0.02889967 Ry
+
+     iteration # 45     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1598 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     ethr =  9.97E-07,  avg # of iterations = 10.6
+
+     total cpu time spent up to now is       46.3 secs
+
+     total energy              =    -551.84546994 Ry
+     estimated scf accuracy    <       0.11954886 Ry
+
+     iteration # 46     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  9.97E-07,  avg # of iterations =  9.0
+
+     total cpu time spent up to now is       48.2 secs
+
+     total energy              =    -551.84364985 Ry
+     estimated scf accuracy    <       0.05652546 Ry
+
+     iteration # 47     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1599 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  9.97E-07,  avg # of iterations = 13.3
+
+     total cpu time spent up to now is       50.6 secs
+
+     total energy              =    -551.84485292 Ry
+     estimated scf accuracy    <       0.00005878 Ry
+
+     iteration # 48     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1599 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  1.34E-07,  avg # of iterations = 11.3
+
+     total cpu time spent up to now is       52.5 secs
+
+     total energy              =    -551.84497963 Ry
+     estimated scf accuracy    <       0.00240794 Ry
+
+     iteration # 49     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  4.4
+
+     total cpu time spent up to now is       53.8 secs
+
+     total energy              =    -551.84495108 Ry
+     estimated scf accuracy    <       0.00393308 Ry
+
+     iteration # 50     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       55.0 secs
+
+     total energy              =    -551.84485837 Ry
+     estimated scf accuracy    <       0.00379163 Ry
+
+     iteration # 51     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  1.34E-07,  avg # of iterations =  8.6
+
+     total cpu time spent up to now is       56.7 secs
+
+     total energy              =    -551.84489784 Ry
+     estimated scf accuracy    <       0.00032872 Ry
+
+     iteration # 52     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  2.4
+
+     total cpu time spent up to now is       58.0 secs
+
+     total energy              =    -551.84490075 Ry
+     estimated scf accuracy    <       0.00014554 Ry
+
+     iteration # 53     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       59.3 secs
+
+     total energy              =    -551.84489211 Ry
+     estimated scf accuracy    <       0.00013596 Ry
+
+     iteration # 54     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  6.5
+
+     total cpu time spent up to now is       60.4 secs
+
+     total energy              =    -551.84490496 Ry
+     estimated scf accuracy    <       0.00007656 Ry
+
+     iteration # 55     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       61.2 secs
+
+     total energy              =    -551.84490082 Ry
+     estimated scf accuracy    <       0.00007396 Ry
+
+     iteration # 56     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.34E-07,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       62.0 secs
+
+     total energy              =    -551.84489809 Ry
+     estimated scf accuracy    <       0.00005852 Ry
+
+     iteration # 57     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  1.33E-07,  avg # of iterations =  2.3
+
+     total cpu time spent up to now is       62.8 secs
+
+     total energy              =    -551.84489906 Ry
+     estimated scf accuracy    <       0.00000986 Ry
+
+     iteration # 58     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     c_bands:  1 eigenvalues not converged
+     ethr =  2.24E-08,  avg # of iterations = 11.3
+
+     total cpu time spent up to now is       64.0 secs
+
+     total energy              =    -551.84491391 Ry
+     estimated scf accuracy    <       0.00032922 Ry
+
+     iteration # 59     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.24E-08,  avg # of iterations =  2.2
+
+     total cpu time spent up to now is       64.9 secs
+
+     total energy              =    -551.84491805 Ry
+     estimated scf accuracy    <       0.00037399 Ry
+
+     iteration # 60     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.24E-08,  avg # of iterations =  3.4
+
+     total cpu time spent up to now is       65.8 secs
+
+     total energy              =    -551.84491924 Ry
+     estimated scf accuracy    <       0.00059449 Ry
+
+     iteration # 61     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1597 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.24E-08,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       66.6 secs
+
+     total energy              =    -551.84492237 Ry
+     estimated scf accuracy    <       0.00059749 Ry
+
+     iteration # 62     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.24E-08,  avg # of iterations =  1.7
+
+     total cpu time spent up to now is       67.4 secs
+
+     total energy              =    -551.84491966 Ry
+     estimated scf accuracy    <       0.00065844 Ry
+
+     iteration # 63     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.24E-08,  avg # of iterations =  1.1
+
+     total cpu time spent up to now is       68.2 secs
+
+     total energy              =    -551.84489246 Ry
+     estimated scf accuracy    <       0.00065664 Ry
+
+     iteration # 64     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     c_bands:  1 eigenvalues not converged
+     ethr =  2.24E-08,  avg # of iterations =  9.7
+
+     total cpu time spent up to now is       69.5 secs
+
+     total energy              =    -551.84490499 Ry
+     estimated scf accuracy    <       0.00000349 Ry
+
+     iteration # 65     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1596 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  7.93E-09,  avg # of iterations =  4.0
+
+     total cpu time spent up to now is       70.4 secs
+
+     total energy              =    -551.84490508 Ry
+     estimated scf accuracy    <       0.00000175 Ry
+
+     iteration # 66     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  8.9
+
+     total cpu time spent up to now is       71.6 secs
+
+     total energy              =    -551.84490561 Ry
+     estimated scf accuracy    <       0.00004204 Ry
+
+     iteration # 67     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  2.1
+
+     total cpu time spent up to now is       72.4 secs
+
+     total energy              =    -551.84490549 Ry
+     estimated scf accuracy    <       0.00003709 Ry
+
+     iteration # 68     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  2.4
+
+     total cpu time spent up to now is       73.3 secs
+
+     total energy              =    -551.84490508 Ry
+     estimated scf accuracy    <       0.00003235 Ry
+
+     iteration # 69     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  4.6
+
+     total cpu time spent up to now is       74.2 secs
+
+     total energy              =    -551.84490505 Ry
+     estimated scf accuracy    <       0.00001330 Ry
+
+     iteration # 70     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  4.0
+
+     total cpu time spent up to now is       75.0 secs
+
+     total energy              =    -551.84490498 Ry
+     estimated scf accuracy    <       0.00000621 Ry
+
+     iteration # 71     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.97E-09,  avg # of iterations =  4.7
+
+     total cpu time spent up to now is       75.9 secs
+
+     total energy              =    -551.84490525 Ry
+     estimated scf accuracy    <       0.00000016 Ry
+
+     iteration # 72     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  7.6
+
+     total cpu time spent up to now is       77.1 secs
+
+     total energy              =    -551.84490536 Ry
+     estimated scf accuracy    <       0.00000113 Ry
+
+     iteration # 73     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  1.5
+
+     total cpu time spent up to now is       77.9 secs
+
+     total energy              =    -551.84490538 Ry
+     estimated scf accuracy    <       0.00000126 Ry
+
+     iteration # 74     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  2.8
+
+     total cpu time spent up to now is       78.7 secs
+
+     total energy              =    -551.84490522 Ry
+     estimated scf accuracy    <       0.00000211 Ry
+
+     iteration # 75     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  8.1
+
+     total cpu time spent up to now is       79.9 secs
+
+     total energy              =    -551.84490534 Ry
+     estimated scf accuracy    <       0.00000045 Ry
+
+     iteration # 76     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       80.6 secs
+
+     total energy              =    -551.84490533 Ry
+     estimated scf accuracy    <       0.00000046 Ry
+
+     iteration # 77     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       81.4 secs
+
+     total energy              =    -551.84490530 Ry
+     estimated scf accuracy    <       0.00000040 Ry
+
+     iteration # 78     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  3.74E-10,  avg # of iterations =  5.1
+
+     total cpu time spent up to now is       82.4 secs
+
+     total energy              =    -551.84490533 Ry
+     estimated scf accuracy    <       0.00000011 Ry
+
+     iteration # 79     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1594 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.50E-10,  avg # of iterations =  6.3
+
+     total cpu time spent up to now is       83.4 secs
+
+     total energy              =    -551.84490535 Ry
+     estimated scf accuracy    <       0.00000201 Ry
+
+     iteration # 80     ecut=    30.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+            55 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+          1595 MiB available memory on the node where the printing process lives
+------------------
+     ethr =  2.50E-10,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is       84.2 secs
+
+     total energy              =    -551.84490497 Ry
+     estimated scf accuracy    <       0.00000195 Ry
 
      End of self-consistent calculation
 
- ------ SPIN UP ------------
+     convergence NOT achieved after  80 iterations: stopping
 
+     Writing config to output data dir ./out/feo_af.save/ :
+     XML data file, charge density
 
-          k = 0.0000 0.0000 0.0000 (   731 PWs)   bands (ev):
-
-   -90.7995 -88.2384 -50.3852 -50.3852 -50.3467 -46.7408 -46.7408 -46.6440
-    -6.7526  -5.6884   5.6957   8.7834   8.7834  11.7188  11.7743  11.7743
-    12.5050  12.5050  13.4019  13.5141  14.5764  14.5764  15.7317  15.7317
-    15.9482  17.6189
-
-          k =-0.7500 0.2500 0.2500 (   764 PWs)   bands (ev):
-
-   -90.8253 -88.2625 -51.0337 -50.5452 -50.4726 -47.8631 -47.5933 -47.3465
-    -5.7051  -5.6832   6.8504   7.1772   8.3495   8.7842   9.1562   9.7762
-    12.1269  12.6629  12.9738  14.6157  14.6191  14.6451  16.0043  16.1210
-    17.2283  17.2410
-
-          k =-0.5000-0.5000 0.5000 (   780 PWs)   bands (ev):
-
-   -90.8392 -88.2751 -51.3481 -50.9942 -50.5557 -48.1463 -47.8166 -47.6686
-    -5.7103  -5.6967   5.7564   7.3315   8.7712   8.7918  10.0146  10.0421
-    11.3276  12.0128  12.7212  13.5751  14.2690  15.0754  15.5255  15.8815
-    17.4326  17.4959
-
-          k =-0.2500-0.2500-0.2500 (   748 PWs)   bands (ev):
-
-   -90.8112 -88.2503 -50.4861 -50.3659 -50.3659 -47.6091 -47.1575 -47.1575
-    -6.2839  -6.2348   7.6370   8.0929   9.5451   9.5451  10.4014  10.4014
-    12.4442  12.4442  12.7003  14.9030  14.9030  14.9768  15.5267  15.5267
-    16.6300  17.0305
-
- ------ SPIN DOWN ----------
-
-
-          k = 0.0000 0.0000 0.0000 (   731 PWs)   bands (ev):
-
-   -90.7995 -88.2384 -50.3852 -50.3852 -50.3467 -46.7408 -46.7408 -46.6440
-    -6.7526  -5.6884   5.6957   8.7834   8.7834  11.7188  11.7743  11.7743
-    12.5050  12.5050  13.4019  13.5142  14.5764  14.5764  15.7317  15.7317
-    15.9482  17.6189
-
-          k =-0.7500 0.2500 0.2500 (   764 PWs)   bands (ev):
-
-   -90.8253 -88.2625 -51.0337 -50.5452 -50.4726 -47.8631 -47.5933 -47.3465
-    -5.7051  -5.6832   6.8504   7.1772   8.3495   8.7842   9.1562   9.7762
-    12.1270  12.6630  12.9738  14.6157  14.6191  14.6451  16.0044  16.1210
-    17.2283  17.2410
-
-          k =-0.5000-0.5000 0.5000 (   780 PWs)   bands (ev):
-
-   -90.8392 -88.2751 -51.3481 -50.9942 -50.5557 -48.1463 -47.8166 -47.6686
-    -5.7103  -5.6967   5.7564   7.3315   8.7712   8.7918  10.0146  10.0421
-    11.3276  12.0128  12.7212  13.5751  14.2690  15.0754  15.5255  15.8815
-    17.4326  17.4959
-
-          k =-0.2500-0.2500-0.2500 (   748 PWs)   bands (ev):
-
-   -90.8112 -88.2503 -50.4861 -50.3659 -50.3659 -47.6091 -47.1575 -47.1575
-    -6.2839  -6.2348   7.6370   8.0929   9.5451   9.5451  10.4014  10.4014
-    12.4442  12.4442  12.7003  14.9030  14.9030  14.9768  15.5267  15.5267
-    16.6300  17.0306
-
-     the Fermi energy is    15.1848 ev
-
-!    total energy              =    -552.14905476 Ry
-     estimated scf accuracy    <          5.3E-11 Ry
-     smearing contrib. (-TS)   =       0.00112712 Ry
-     internal energy E=F+TS    =    -552.15018188 Ry
-
-     The total energy is F=E-TS. E is the sum of the following terms:
-     one-electron contribution =    -216.31072127 Ry
-     hartree contribution      =     124.31377902 Ry
-     xc contribution           =     -82.12920065 Ry
-     ewald contribution        =    -378.02403899 Ry
-
-     total magnetization       =     0.00 Bohr mag/cell
-     absolute magnetization    =     7.18 Bohr mag/cell
-
-     convergence has been achieved in  16 iterations
-
-     Forces acting on atoms (cartesian axes, Ry/au):
-
-     atom    1 type  1   force =     0.00000000    0.00000000    0.00000000
-     atom    2 type  2   force =    -0.00000000    0.00000000    0.00000000
-     atom    3 type  3   force =     0.00000003    0.00000003    0.00000003
-     atom    4 type  3   force =    -0.00000003   -0.00000003   -0.00000003
-
-     Total force =     0.000000     Total SCF correction =     0.000005
-     SCF correction compared to forces is large: reduce conv_thr to get better values
-
-
-     Computing stress (Cartesian axis) and pressure
-
-          total   stress  (Ry/bohr**3)                   (kbar)     P=   -15270.18
-  -0.10380455   0.00033764   0.00033764       -15270.18       49.67       49.67
-   0.00033764  -0.10380455   0.00033764           49.67   -15270.18       49.67
-   0.00033764   0.00033764  -0.10380455           49.67       49.67   -15270.18
-
-
-     Writing all to output data dir ./out/feo_af.save/ :
-     XML data file, charge density, pseudopotentials, collected wavefunctions
-
-     init_run     :      0.73s CPU      0.75s WALL (       1 calls)
-     electrons    :      5.77s CPU      5.93s WALL (       1 calls)
-     forces       :      0.05s CPU      0.06s WALL (       1 calls)
-     stress       :      0.19s CPU      0.21s WALL (       1 calls)
+     init_run     :      1.05s CPU      1.05s WALL (       1 calls)
+     electrons    :     82.67s CPU     83.04s WALL (       1 calls)
 
      Called by init_run:
-     wfcinit      :      0.22s CPU      0.23s WALL (       1 calls)
-     potinit      :      0.20s CPU      0.20s WALL (       1 calls)
-     hinit0       :      0.31s CPU      0.32s WALL (       1 calls)
+     wfcinit      :      0.49s CPU      0.49s WALL (       1 calls)
+     wfcinit:atom :      0.00s CPU      0.00s WALL (      27 calls)
+     wfcinit:wfcr :      0.46s CPU      0.46s WALL (      27 calls)
+     potinit      :      0.18s CPU      0.18s WALL (       1 calls)
+     hinit0       :      0.37s CPU      0.37s WALL (       1 calls)
 
      Called by electrons:
-     c_bands      :      4.66s CPU      4.77s WALL (      16 calls)
-     sum_band     :      0.73s CPU      0.76s WALL (      16 calls)
-     v_of_rho     :      0.28s CPU      0.30s WALL (      17 calls)
-     mix_rho      :      0.06s CPU      0.07s WALL (      16 calls)
+     c_bands      :     71.23s CPU     71.52s WALL (      80 calls)
+     sum_band     :     10.56s CPU     10.60s WALL (      80 calls)
+     v_of_rho     :      0.52s CPU      0.55s WALL (      81 calls)
+     v_h          :      0.10s CPU      0.11s WALL (      81 calls)
+     v_xc         :      0.42s CPU      0.43s WALL (      81 calls)
+     mix_rho      :      0.19s CPU      0.19s WALL (      80 calls)
 
      Called by c_bands:
-     init_us_2    :      0.06s CPU      0.06s WALL (     280 calls)
-     cegterg      :      4.53s CPU      4.63s WALL (     128 calls)
+     init_us_2    :      0.99s CPU      1.00s WALL (    4347 calls)
+     cegterg      :     68.91s CPU     69.18s WALL (    2160 calls)
+
+     Called by sum_band:
+     sum_band:wei :      0.00s CPU      0.00s WALL (      80 calls)
+     sum_band:loo :     10.44s CPU     10.48s WALL (      80 calls)
+     sum_band:buf :      0.04s CPU      0.04s WALL (    2160 calls)
+     sum_band:ini :      0.49s CPU      0.49s WALL (    2160 calls)
 
      Called by *egterg:
-     cdiaghg      :      0.24s CPU      0.24s WALL (     532 calls)
-     h_psi        :      3.73s CPU      3.82s WALL (     540 calls)
-     g_psi        :      0.01s CPU      0.01s WALL (     404 calls)
+     cdiaghg      :      3.80s CPU      3.82s WALL (   10931 calls)
+     cegterg:over :      3.63s CPU      3.65s WALL (    8771 calls)
+     cegterg:upda :      1.85s CPU      1.85s WALL (    8771 calls)
+     cegterg:last :      2.69s CPU      2.70s WALL (    3645 calls)
+     h_psi        :     55.62s CPU     55.85s WALL (   10958 calls)
+     g_psi        :      0.16s CPU      0.16s WALL (    8771 calls)
 
      Called by h_psi:
-     h_psi:calbec :      0.31s CPU      0.32s WALL (     540 calls)
-     vloc_psi     :      3.15s CPU      3.23s WALL (     540 calls)
-     add_vuspsi   :      0.26s CPU      0.27s WALL (     540 calls)
+     h_psi:calbec :      4.79s CPU      4.81s WALL (   10958 calls)
+     vloc_psi     :     46.63s CPU     46.82s WALL (   10958 calls)
+     add_vuspsi   :      4.09s CPU      4.11s WALL (   10958 calls)
 
      General routines
-     calbec       :      0.35s CPU      0.35s WALL (     580 calls)
-     fft          :      0.20s CPU      0.22s WALL (     155 calls)
-     ffts         :      0.15s CPU      0.15s WALL (      66 calls)
-     fftw         :      3.01s CPU      3.09s WALL (   20030 calls)
-     interpolate  :      0.17s CPU      0.17s WALL (      34 calls)
+     calbec       :      4.78s CPU      4.80s WALL (   10958 calls)
+     fft          :      0.42s CPU      0.43s WALL (     405 calls)
+     ffts         :      0.17s CPU      0.18s WALL (     161 calls)
+     fftw         :     47.04s CPU     47.22s WALL (  276944 calls)
+     interpolate  :      0.25s CPU      0.26s WALL (      81 calls)
+     davcio       :      0.00s CPU      0.00s WALL (      45 calls)
 
      Parallel routines
 
-     PWSCF        :      6.79s CPU      7.00s WALL
+     PWSCF        :   1m23.78s CPU   1m24.16s WALL
 
 
-   This run was terminated on:  22:32:34  29Aug2024            
+   This run was terminated on:  15:47:57  10Sep2024            
 
 =------------------------------------------------------------------------------=
    JOB DONE.

@@ -93,7 +93,7 @@ function atomic_wavefunction(basis, atom_index)
     # Build Fourier transform factors centered at 0.
     lmax = psp.lmax
     n_funs_per_l = [length(psp.r2_pswfcs[l+1]) for l in 0:lmax]
-    eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p) #eval_psp_projector_fourier
+    eval_psp_fourier(i, l, p) = eval_psp_pswfc_fourier(psp, i, l, p) #eval_psp_pswfc_fourier or eval_psp_projector_fourier
     fourier_form = atomic_centered_function_form_factors(eval_psp_fourier, G_plus_k_all, lmax, n_funs_per_l)
     map(1:length(basis.kpoints)) do ik
         fourier_form_ik = fourier_form[ik]

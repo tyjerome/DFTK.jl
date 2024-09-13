@@ -153,7 +153,6 @@ end
 # Function to plot data from multiple files
 function plot_multiple_files(filenames::Vector{String}, output_filename::String; vline_x::Union{Float64, Nothing}=nothing)
     
-    integrals = []
     for (i, filename) in enumerate(filenames)
         # Read data from each file
         x_values, y_values = read_data(filename)
@@ -167,19 +166,19 @@ function plot_multiple_files(filenames::Vector{String}, output_filename::String;
         vline(x=vline_x, color="red", linestyle="--", linewidth=1, label="Vertical Line at $vline_x")
     end
 
-    # Add labels, title, and legend (optional)
-    #xlabel("X Values")
-    #ylabel("Y Values")
-    #title("Combined Plot of Multiple Files with Vertical Line")
-    #legend()
+    #Add labels, title, and legend (optional)
+    xlabel("X Values")
+    ylabel("Y Values")
+    title("Combined Plot of Multiple Files with Vertical Line")
+    legend()
 
-    # Save the figure without showing it
+    #Save the figure without showing it
     savefig(output_filename)
 end
 
 # List of filenames to read from
-filenames = ["/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#1(Si)_wfc#1(s)",
-             "/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#1(Si)_wfc#2(p)"]
+filenames = ["/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#1(Si)_wfc#1(s)_nosym_noinv",
+             "/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#1(Si)_wfc#2(p)_nosym_noinv"]
 
 # X-coordinate for the vertical dashed red line
 vertical_line_x = 0.0  # Replace with your desired x-coordinate
