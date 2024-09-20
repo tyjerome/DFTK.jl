@@ -100,7 +100,39 @@ function atomic_wavefunction(basis, atom_index)
         structure_factor_ik = exp.(-im .*[dot(pos_cart, Gik) for Gik in G_plus_k_all[ik]])
         map(1:size(fourier_form_ik, 2)) do iproj
             wfn = structure_factor_ik .* fourier_form_ik[:, iproj] ./ sqrt(basis.model.unit_cell_volume)
-            wfn / norm(wfn)  # Normalise but not orthogonalise (Why ?)
+            wfn# / norm(wfn)  # no Normalise nor orthogonalise (Why ?)
         end
     end
+end
+
+function compute_ortho_orbitals(basis)
+    orbitals = Vector{Vector}(undef, length(basis.model.atoms))
+    ortho_orbitals = [Vector{Vector}(undef, length(basis.kpoints)) 
+                      for _ in 1:length(basis.model.atoms)]
+    orbitals_length = zeros(Int, length(basis.model.atoms))
+    for n = 1:length(basis.model.atoms)
+        orbitals[n] = atomic_wavefunction(basis, n)
+        orbitals_length[n] = length(orbitals[n][1])
+    end
+    for σ = 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
+        orbital_total_ik_ns = []
+        for n = 1:length(basis.model.atoms)
+            append!(orbital_total_ik_ns, orbitals[n][ik])
+        end
+        orbital_total_ik_ns = stack(orbital_total_ik_ns)
+        ortho_orbital_ik_ns = ortho_lowdin(orbital_total_ik_ns)
+        ortho_orbital_ik_ns = [ortho_orbital_ik_ns[:,i] for i in 1:size(ortho_orbital_ik_ns,2)]
+        orbital_start = 1
+        ortho_orbital_ik = []
+        for n = 1:length(basis.model.atoms)
+            orbital_length = orbitals_length[n]
+            orbital_end = orbital_start + orbital_length -1
+            push!(ortho_orbital_ik, ortho_orbital_ik_ns[orbital_start:orbital_end])
+            orbital_start = orbital_start + orbital_length
+        end
+        for n = 1:length(basis.model.atoms)
+        ortho_orbitals[n][ik] = ortho_orbital_ik[n]
+        end
+    end
+    ortho_orbitals
 end

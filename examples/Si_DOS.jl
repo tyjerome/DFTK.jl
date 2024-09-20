@@ -43,7 +43,7 @@ function compute_dos(scfres; energy_range=[-10, 10], energy_ticks=0.01, smearing
 
     # Define the energy grid in Hartree units and then convert to eV
     x = energy_min:energy_ticks:energy_max
-    x = x ./ 13.6056931230445 # Conversion from Hartree to eV
+    x = x ./ (13.6056931230445) # Conversion from Hartree to eV
 
     # Initialize the DOS array
     y = zeros(length(x))
@@ -54,34 +54,44 @@ function compute_dos(scfres; energy_range=[-10, 10], energy_ticks=0.01, smearing
             for j in 1:length(scfres.eigenvalues[k])  # Iterate over eigenvalues
                 # Accumulate the DOS values using the Gaussian smearing
                 y[i] += scfres.basis.kweights[k] * 
-                        gaussian(energy, scfres.eigenvalues[k][j] * 2, smearing_temperature * sqrt(2) / 2) / 13.6056931230445 * 
-                        scfres.occupation[k][j]
+                        gaussian(energy, scfres.eigenvalues[k][j] * 2, smearing_temperature * sqrt(2)/2) / 
+                        13.6056931230445 * scfres.occupation[k][j]
             end
         end
     end
-
+    x = x.*13.6056931230445 #.- scfres.εF*13.6056931230445*2
     return x, y  # Return the energy grid and the computed DOS
 end
 
-x1, y1 = compute_dos(scfres)
+x = -8:0.01:7
+x1 = x./13.6056931230445/2
+y1 = zeros(length(x1))
+for i in 1:length(x1)
+    y1[i] = DFTK.compute_dos(x1[i], scfres.basis, scfres.eigenvalues; smearing = DFTK.Smearing.Gaussian(), temperature = 0.005)[1]/13.6056931230445/2
+end
 
-x1 = x.*13.6056931230445-2*ones(length(x))*scfres.εF*13.6056931230445
+function plot_dos(scfres; energy_range=[-10, 10], energy_ticks=0.01, smearing_temperature=0.01)
+    x = energy_range[1]:energy_ticks:energy_range[2]
+    
+end
+
+#x1 = x.*13.6056931230445-2*ones(length(x))*scfres.εF*13.6056931230445
 norm1 = DFTK.simpson(x1, y1)
 x2 = scfres.εF*13.6056931230445 *2
-
-plot(x1, y1; linestyles =:solid, label = "DFTK_DOS")
+x = x .-scfres.εF*13.6056931230445*2
+plot(x, y1; linestyles =:solid, label = "DFTK_DOS")
 
 using DelimitedFiles
 
 data = readdlm("/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_tot")[2:end,:]
 
-xvalues = data[:,1] - scfres.εF*13.6056931230445*ones(length(data[:,1]))
+xvalues = data[:,1] - 6.3924*ones(length(data1[:,1]))
 
 yvalues = (data[:,2:end])
 
 yvaluetot = yvalues[:,1] + yvalues[:,2]
 norm2 = DFTK.simpson(xvalues, yvaluetot)
 plot!(xvalues, yvaluetot; linestyle=:dash, label="DOS_QE")
+title!("Density of States of Si")
+xlabel!("Energy(eV)")
 savefig("DOS_compare_test.png")
-
-function compute_dos(scfres; min_energy = )

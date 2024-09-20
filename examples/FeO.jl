@@ -25,10 +25,10 @@ positions = [zeros(3), ones(3)/2, ones(3)/4, 3*ones(3)/4]
 magnetic_moments = [4, -4, 0, 0];
 Ecut = 15
 kgrid=[3,3,3]
-model = model_LDA(lattice, atoms, positions; temperature = 0, symmetries = false)#, smearing = Smearing.Gaussian())#, magnetic_moments)
+model = model_LDA(lattice, atoms, positions; temperature = 0.005, symmetries = false, smearing = Smearing.Gaussian(), magnetic_moments)
 fft_size = compute_fft_size(model, Ecut, kgrid; supersampling=2*sqrt(2))
 basis = PlaneWaveBasis(model; Ecut=15, kgrid, fft_size)
-ρ0 = guess_density(basis) #, magnetic_moments)
+ρ0 = guess_density(basis, magnetic_moments)
 
 scfres = self_consistent_field(basis, tol=1e-8; ρ = ρ0, mixing=KerkerDosMixing())
 save_scfres("scfres_feo.jld2", scfres)

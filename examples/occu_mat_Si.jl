@@ -24,6 +24,8 @@ psp_positions = [scfres.basis.model.positions[group] for group in psp_groups]
 psp = psps[1]
 positions = psp_positions[1]
 
+occupation_matrix_ortho_1 = DFTK.build_occupation_matrix_ortho(scfres, 1, atoms[1].psp, basis, scfres.ψ, "3P").O
+
 orbital1 = DFTK.atomic_wavefunction(basis, 1)
 
 orbital2 = DFTK.atomic_wavefunction(basis, 2)

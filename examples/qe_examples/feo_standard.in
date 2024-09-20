@@ -13,14 +13,15 @@ FeO Wustite whithin DFT+U using standard initial ns matrices
  /
  &system
     ibrav= 0, celldm(1)=8.19, nat= 4, ntyp= 3,
-    ecutwfc = 30.0, ecutrho = 240.0, !nspin=2,
-    !starting_magnetization(1)= 0.67,
-    !starting_magnetization(2)=-0.67,
-    !starting_magnetization(3)= 0,
-    !starting_magnetization(4)= 0,
+    ecutwfc = 30.0, ecutrho = 240.0, nspin=2, 
+    starting_magnetization(1)= 0.67,
+    starting_magnetization(2)=-0.67,
+    starting_magnetization(3)= 0,
+    starting_magnetization(4)= 0,
     nosym = .true.
     noinv = .true.
-    occupations='fixed' !, smearing='gaussian', degauss=0.01,
+    occupations = 'smearing'
+    smearing='gaussian', degauss=0.01,
  /
  &electrons
   conv_thr =   4.0000000000d-10
@@ -42,6 +43,6 @@ CELL_PARAMETERS {alat}
  1.00 0.50 0.50
 K_POINTS {automatic}
 3 3 3 0 0 0
-!HUBBARD {atomic}
-!U Fe1-3d 4.3
-!U Fe2-3d 4.3
+HUBBARD {atomic}
+U Fe1-3d 0.0000000001
+U Fe2-3d 0.0000000001

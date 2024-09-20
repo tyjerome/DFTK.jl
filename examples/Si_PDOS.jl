@@ -68,6 +68,76 @@ function get_seperated_atomic_wavefunctions(basis, alpha)
     new_orbitals
 end
 
+function compute_ortho_orbitals(basis)
+    orbitals = Vector{Vector}(undef, length(basis.model.atoms))
+    ortho_orbitals = [Vector{Vector}(undef, length(basis.kpoints)) 
+                      for _ in 1:length(basis.model.atoms)]
+    orbitals_length = zeros(Int, length(basis.model.atoms))
+    for n = 1:length(basis.model.atoms)
+        orbitals[n] = DFTK.atomic_wavefunction(basis, n)
+        orbitals_length[n] = length(orbitals[n][1])
+    end
+    for σ = 1:basis.model.n_spin_components, ik = krange_spin(basis, σ)
+        orbital_total_ik_ns = []
+        for n = 1:length(basis.model.atoms)
+            append!(orbital_total_ik_ns, orbitals[n][ik])
+        end
+        orbital_total_ik_ns = stack(orbital_total_ik_ns)
+        ortho_orbital_ik_ns = DFTK.ortho_lowdin(orbital_total_ik_ns)
+        ortho_orbital_ik_ns = [ortho_orbital_ik_ns[:,i] for i in 1:size(ortho_orbital_ik_ns,2)]
+        orbital_start = 1
+        ortho_orbital_ik = []
+        for n = 1:length(basis.model.atoms)
+            orbital_length = orbitals_length[n]
+            orbital_end = orbital_start + orbital_length -1
+            push!(ortho_orbital_ik, ortho_orbital_ik_ns[orbital_start:orbital_end])
+            orbital_start = orbital_start + orbital_length
+        end
+        for n = 1:length(basis.model.atoms)
+        ortho_orbitals[n][ik] = ortho_orbital_ik[n]
+        end
+    end
+    ortho_orbitals
+end
+
+function compute_pdos(scfres, atom_index, orbital_index; 
+                      ε_min = minimum([minimum(scfres.eigenvalues[ik]) 
+                              for ik = 1:length(basis.kpoints)])*1.2 - 0.2*scfres.εF,
+                      ε_max = maximum([maximum(scfres.eigenvalues[ik]) 
+                              for ik = 1:length(basis.kpoints)])*1.2 - 0.2*scfres.εF,
+                      ε_ticks = 0.001, basis = scfres.basis, eigenvalues = scfres.eigenvalues, smearing=basis.model.smearing,
+                      temperature=basis.model.temperature)
+    if (temperature == 0) || smearing isa Smearing.None
+        error("compute_dos only supports finite temperature")
+    end
+    orbitals = compute_ortho_orbitals(basis)
+    filled_occ = DFTK.filled_occupation(basis.model)
+    ε_list = ε_min:ε_ticks:ε_max
+    D = [Vector{Vector}(undef, length(ε_list)) for _ in 1:basis.model.n_spin_components]
+    proj = Vector{Vector}(undef, length(scfres.ψ))
+
+    for (ik, ψk) in enumerate(scfres.ψ)
+        orbital_ik = orbitals[atom_index][ik][orbital_index]
+        proj[ik] = abs2.(ψk' * orbital_ik)
+    end
+
+    D = [Vector(undef, length(ε_list)) for _ in 1:basis.model.n_spin_components]
+    for σ = 1:basis.model.n_spin_components
+        D_σ = zeros(length(ε_list))
+        for (iε, ε) in enumerate(ε_list)
+            for ik = krange_spin(basis, σ)
+                for (iband, εnk) in enumerate(eigenvalues[ik])
+                    enred = (εnk - ε) / temperature
+                    D_σ[iε] -= (filled_occ * basis.kweights[ik] / temperature
+                            * DFTK.Smearing.occupation_derivative(smearing, enred)) * proj[ik][iband]
+                end
+            end
+        end
+    D[σ] = D_σ
+    end
+    D
+end
+
 sep_orbital = get_seperated_atomic_wavefunctions(basis, 1)
 all_sep_orbital = []
 lengthof_orbitals = []
@@ -254,7 +324,7 @@ for (i,x) in enumerate(x)
             proj_simple_all_ortho[k][j,6]+ 
             proj_simple_all_ortho[k][j,7]+
             proj_simple_all_ortho[k][j,8]) *
-                gaussian(x, scfres.eigenvalues[k][j]*2, 0.00707) /13.6056931230445 * scfres.occupation[k][j] *2
+                gaussian(x, scfres.eigenvalues[k][j]*2, 0.00707) /13.6056931230445 * scfres.occupation[k][j]
         end
     end
 end
@@ -344,7 +414,7 @@ data2 = readdlm("/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_
 data3 = readdlm("/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#1(Si)_wfc#2(p)_noinv")[2:end,:]
 data4 = readdlm("/home/yongjoong/hubbardu_new_funciton_0702/DFTK.jl/examples/qe_examples/Si.pdos_atm#2(Si)_wfc#2(p)_noinv")[2:end,:]
 
-xvalues = data1[:,1] - 6.3424*ones(length(data1[:,1]))
+xvalues = data1[:,1] - 6.3924*ones(length(data1[:,1]))
 
 yvalues1 = (data1[:,2:end])
 yvalues2 = (data2[:,2:end])
@@ -366,16 +436,17 @@ yvaluetot = yvaluetot1 + yvaluetot2
 #plot!(xvalues, yvaluetot2; linestyle=:dash, label="PDOS_QE_atom2")
 
 
-plot(xvalues, yvaluetot; linewidth = 2, label ="PDOS_QE_nosym_noinv")
+plot(xvalues, yvaluetot; linewidth = 3, linecolor=:black, label ="PDOS_QE_nosym_noinv")
 #plot!(xvalues, yvaluetot3+yvaluetot4; linewidth = 2, label ="PDOS_QE_noinv")
 #plot!(x1, y1, linestyle=:dash, label = "PDOS_DFTK_original")
-plot!(x1, y2, xlims = (-13, 1),linestyle=:dash, label = "PDOS_DFTK_single_ortho")
-#plot!(x1, y3, xlims = (-13, 1), linestyle=:dash, label = "PDOS_DFTK_all_simple_ortho")
+plot!(x1, y2, xlims = (-13, 1),linestyle=:dashdot, linecolor=:orange, linewidth = 2, label = "PDOS_DFTK_single_ortho")
+plot!(x1, y3, xlims = (-13, 1), linestyle=:dashdotdot,  linecolor=:blue, linewidth = 2, label = "PDOS_DFTK_all_simple_ortho")
 #plot!(x1, y4, xlims = (-13, 1),linestyle=:dash, label = "PDOS_DFTK_BGS_ortho_atoms")
 #plot!(x1, y5, xlims = (-13, 1),linestyle=:dash, label = "PDOS_DFTK_QR_ortho_atoms")
 #plot!(x1, y6, xlims = (-13, 1),linestyle=:dash, label = "PDOS_DFTK_BGS_ortho_orbitals")
-plot!(x1, y7, xlims = (-13, 1),linestyle=:dash, label = "PDOS_DFTK_all_kpoint_ortho_orbitals")
-
+plot!(x1, y7, xlims = (-13, 1),linestyle=:dash, linewidth = 2, linecolor=:green, label = "PDOS_DFTK_all_kpoint_ortho_orbitals")
+title!("PDOS of Si 3P orbital")
+xlabel!("Energy(eV)")
 
 plot!(legend=:topleft)
-savefig("PDOS_compare_2p_withsym.png")
+savefig("PDOS_compare_3p_withsym.png")

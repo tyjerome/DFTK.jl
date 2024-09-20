@@ -17,16 +17,7 @@ implementing Hubbard model to dft (DFT+U)
 function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_label)
     """
     Occupation matrix for DFT+U implementation
-        Inputs: 
-        1)scfres, 
-        2)psudopotential(usp, in order to get the orbitals), 
-        3)basis, 
-        4)wavefunctions ψ, 
-        5)n : principal quantum number , -> i (check the pswfc_label)
-        6)l : angular quantum number,
-        7)atom_position : atomic position in the unitcell
-        #types?
-        Outputs: Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
+        Occupation matrix ns_{m1,m2} = Σ_{i} f_i <ψ_i|ϕ^I_m1><ϕ^I_m2|ψ_i>
     """
     occupation = scfres.occupation
     l = find_orbital_indices(orbital_label, psp.pswfc_labels)[1]
@@ -34,7 +25,7 @@ function build_occupation_matrix(scfres, atom_index, psp, basis, ψ, orbital_lab
     nfun_l = length(psp.pswfc_labels[l+1])
     O = [zeros(Complex{Float64}, 2*l+1, 2*l+1) for _ in 1:basis.model.n_spin_components]
     count = count_orbital_position(basis, atom_index, orbital_label)
-    orbital = atomic_wavefunction(basis, atom_index)
+    orbital = compute_ortho_orbitals(basis)[atom_index]
     
     #Start calculating Occupation matrix for each atomic sites
     #O_{σ,m1,m2} = Σ_{k, G_k, band} f_{k, band} * w_{k} |ψ_σ,k,band><proj_m1|proj_m2><ψ_σ,k,band|
@@ -95,9 +86,6 @@ function build_occupation_matrix_ortho(scfres, atom_index, psp, basis, ψ, orbit
             orbital_ik[order,:] = orbital[ik][count+m1*nfun_l+l+n]
             order += 1
         end
-        print(size(orbital_ik))        
-        #orbital_ortho_ik = ortho_lowdin(orbital_ik)
-        #orbital_ortho_ik = undo_rearrange_columns(ortho_lowdin(rearrange_columns(orbital_ik)))
         orbital_ortho_ik = orbital_ik
         orbital_ortho[ik] = orbital_ortho_ik
     end
