@@ -33,40 +33,7 @@ proj_all_kpoint_ortho = Vector{Matrix}(undef, length(ψ))
 proj_ortho_p_plus_all_kpoint_ortho = Vector{Matrix}(undef, length(ψ))
 
 
-function get_list_atomic_wavefunctions(basis, alpha)
-    psp_labels = basis.model.atoms[alpha].psp.pswfc_labels
-    list_orbitals = []
-    for i in 1:length(psp_labels)
-        for j in 1:length(psp_labels[i])
-            append!(list_orbitals, 2i-1)
-        end
-    end
-    list_orbitals
-end
 
-function get_seperated_atomic_wavefunctions(basis, alpha)
-    orbital = DFTK.atomic_wavefunction(basis, alpha)
-    psp_labels = basis.model.atoms[alpha].psp.pswfc_labels
-    list_orbitals = []
-    new_orbitals = Vector{Vector}(undef, length(orbital))
-    for i in 1:length(psp_labels)
-        for j in 1:length(psp_labels[i])
-            append!(list_orbitals, 2i-1)
-        end
-    end
-    for k in 1:length(orbital)
-        start = 1
-        new_orbital_k = []
-        orbital_k = orbital[k]
-        for l in 1:length(list_orbitals)
-            new_orbital_k_l = orbital_k[start:start+list_orbitals[l]-1]
-            push!(new_orbital_k, new_orbital_k_l)
-            start += l
-        end
-        new_orbitals[k] = new_orbital_k
-    end
-    new_orbitals
-end
 
 function compute_ortho_orbitals(basis)
     orbitals = Vector{Vector}(undef, length(basis.model.atoms))
@@ -110,6 +77,8 @@ function compute_pdos(scfres, atom_index, orbital_index;
     if (temperature == 0) || smearing isa Smearing.None
         error("compute_dos only supports finite temperature")
     end
+
+    basis = scfres.basis
     orbitals = compute_ortho_orbitals(basis)
     filled_occ = DFTK.filled_occupation(basis.model)
     ε_list = ε_min:ε_ticks:ε_max
@@ -135,9 +104,44 @@ function compute_pdos(scfres, atom_index, orbital_index;
         end
     D[σ] = D_σ
     end
-    D
+    (;ε_list, D)
 end
 
+#=
+function get_list_atomic_wavefunctions(basis, alpha)
+    psp_labels = basis.model.atoms[alpha].psp.pswfc_labels
+    list_orbitals = []
+    for i in 1:length(psp_labels)
+        for j in 1:length(psp_labels[i])
+            append!(list_orbitals, 2i-1)
+        end
+    end
+    list_orbitals
+end
+
+function get_seperated_atomic_wavefunctions(basis, alpha)
+    orbital = DFTK.atomic_wavefunction(basis, alpha)
+    psp_labels = basis.model.atoms[alpha].psp.pswfc_labels
+    list_orbitals = []
+    new_orbitals = Vector{Vector}(undef, length(orbital))
+    for i in 1:length(psp_labels)
+        for j in 1:length(psp_labels[i])
+            append!(list_orbitals, 2i-1)
+        end
+    end
+    for k in 1:length(orbital)
+        start = 1
+        new_orbital_k = []
+        orbital_k = orbital[k]
+        for l in 1:length(list_orbitals)
+            new_orbital_k_l = orbital_k[start:start+list_orbitals[l]-1]
+            push!(new_orbital_k, new_orbital_k_l)
+            start += l
+        end
+        new_orbitals[k] = new_orbital_k
+    end
+    new_orbitals
+end
 sep_orbital = get_seperated_atomic_wavefunctions(basis, 1)
 all_sep_orbital = []
 lengthof_orbitals = []
@@ -147,13 +151,14 @@ for j in 1:length(sep_orbital[1])
         orbital_ik = sep_orbital[ik]
         orbital_ik_j = orbital_ik[j]#*scfres.basis.kweights[ik]
         all_sep_orbital_j = vcat(all_sep_orbital_j, stack(orbital_ik_j))
-        append!(lengthof_orbitals, size(all_orbital1,1))
+        append!(lengthof_orbitals, size(all_sep_orbital_j,1))
     end
     all_sep_orbital_j = DFTK.ortho_lowdin(all_sep_orbital_j)
     all_sep_orbital_j = [all_sep_orbital_j[:,i] for i in 1:size(all_sep_orbital_j,2)]
     push!(all_sep_orbital, all_sep_orbital_j)
 end
-ortho_orbital_1 = DFTK.ortho_lowdin(all_orbital1)
+all_sep_orbital
+ortho_orbital_1 = DFTK.ortho_lowdin(all_sep_orbital)
 #all_orbital = hcat(ortho_orbital_1, ortho_orbital_2)
 starting_row = 1
 new_orbital = Vector{Matrix}(undef, length(ψ))
@@ -162,7 +167,7 @@ for (ik, ψk) in enumerate(ψ)
     starting_row = lengthof_orbitals[ik]+1
     proj_all_kpoint_ortho[ik] = abs2.(ψk' * new_orbital[ik])
 end
-
+=#
 
 
 
@@ -237,14 +242,14 @@ end
 
 orbital1 = DFTK.atomic_wavefunction(basis, 1)
 orbital2 = DFTK.atomic_wavefunction(basis, 2)
-all_orbital1 = Matrix{Float64}(undef, 0, size(orbital1[1], 1))
-all_orbital2 = Matrix{Float64}(undef, 0, size(orbital2[1], 1))
+global all_orbital1 = Matrix{Float64}(undef, 0, size(orbital1[1], 1))
+global all_orbital2 = Matrix{Float64}(undef, 0, size(orbital2[1], 1))
 lengthof_orbitals = []
 for (ik, ψk) in enumerate(ψ)
     orbital1_ik = orbital1[ik]*scfres.basis.kweights[ik]
     orbital2_ik = orbital2[ik]*scfres.basis.kweights[ik]
-    all_orbital1 = vcat(all_orbital1, stack(orbital1_ik))
-    all_orbital2 = vcat(all_orbital2, stack(orbital1_ik))
+    global all_orbital1 = vcat(all_orbital1, stack(orbital1_ik))
+    global all_orbital2 = vcat(all_orbital2, stack(orbital1_ik))
     append!(lengthof_orbitals, size(all_orbital1,1))
 end
 ortho_orbital_1 = DFTK.ortho_lowdin(all_orbital1)
@@ -254,7 +259,7 @@ starting_row = 1
 new_orbital = Vector{Matrix}(undef, length(ψ))
 for (ik, ψk) in enumerate(ψ)
     new_orbital[ik] = all_orbital[starting_row:lengthof_orbitals[ik], :]
-    starting_row = lengthof_orbitals[ik]+1
+    global starting_row = lengthof_orbitals[ik]+1
     proj_all_kpoint_ortho[ik] = abs2.(ψk' * new_orbital[ik])
 end
 
@@ -449,4 +454,17 @@ title!("PDOS of Si 3P orbital")
 xlabel!("Energy(eV)")
 
 plot!(legend=:topleft)
-savefig("PDOS_compare_3p_withsym.png")
+savefig("PDOS_compare_3p_Si.png")
+
+#=
+#trial for the new funcition compute_pdos
+#the output ε_list is in Hartree
+PDOS_all_atom_ortho_p1 = compute_pdos(scfres, 1, 2; smearing = DFTK.Smearing.Gaussian(), temperature = 0.005)
+PDOS_all_atom_ortho_p2 = compute_pdos(scfres, 1, 3; smearing = DFTK.Smearing.Gaussian(), temperature = 0.005)
+PDOS_all_atom_ortho_p3 = compute_pdos(scfres, 1, 4; smearing = DFTK.Smearing.Gaussian(), temperature = 0.005)
+
+ε_list = PDOS_all_atom_ortho_p1.ε_list
+PDOS_P = PDOS_all_atom_ortho_p1.D + PDOS_all_atom_ortho_p2.D+ PDOS_all_atom_ortho_p3.D
+
+plot(ε_list, PDOS_P)
+=#

@@ -130,6 +130,47 @@ function compute_pdos_projs(basis, ψ, psp::PspUpf, position) #TODO
    projs
 end
 
+function plot_pdos(scfres, atom_index, orbital_index; 
+    ε_min = minimum([minimum(scfres.eigenvalues[ik]) 
+            for ik = 1:length(scfres.basis.kpoints)])*1.2 - 0.2*scfres.εF,
+    ε_max = maximum([maximum(scfres.eigenvalues[ik]) 
+            for ik = 1:length(scfres.basis.kpoints)])*1.2 - 0.2*scfres.εF,
+    ε_ticks = 0.001, basis = scfres.basis, eigenvalues = scfres.eigenvalues, smearing=basis.model.smearing,
+    temperature=basis.model.temperature)
+
+    if (temperature == 0) || smearing isa Smearing.None
+        error("plot_dos only supports finite temperature")
+    end
+
+
+    orbitals = compute_ortho_orbitals(basis)
+    filled_occ = DFTK.filled_occupation(basis.model)
+    ε_list = ε_min:ε_ticks:ε_max
+    D = [Vector{Vector}(undef, length(ε_list)) for _ in 1:basis.model.n_spin_components]
+    proj = Vector{Vector}(undef, length(scfres.ψ))
+
+    for (ik, ψk) in enumerate(scfres.ψ)
+        orbital_ik = orbitals[atom_index][ik][orbital_index]
+        proj[ik] = abs2.(ψk' * orbital_ik)
+    end
+
+    D = [Vector(undef, length(ε_list)) for _ in 1:basis.model.n_spin_components]
+    for σ = 1:basis.model.n_spin_components
+        D_σ = zeros(length(ε_list))
+        for (iε, ε) in enumerate(ε_list)
+            for ik = krange_spin(basis, σ)
+                for (iband, εnk) in enumerate(eigenvalues[ik])
+                    enred = (εnk - ε) / temperature
+                    D_σ[iε] -= (filled_occ * basis.kweights[ik] / temperature
+                    * DFTK.Smearing.occupation_derivative(smearing, enred)) * proj[ik][iband]
+                end
+            end
+        end
+    D[σ] = D_σ
+    end
+(;ε_list, D)
+end
+
 function compute_pdos_projs_new(basis, ψ, atom_index) #TODO 
     # Build Fourier transform factors centered at 0.
     fourier_form = atomic_wavefunction(basis, atom_index)

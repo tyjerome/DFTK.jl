@@ -101,8 +101,8 @@ function build_occupation_matrix_ortho(scfres, atom_index, psp, basis, ψ, orbit
 
                 for band in 1:num_band #1:num_band
                     O[σ][m1+l+1, m2+l+1] += occupation[ik][band] *
-                    basis.kweights[ik] * ψ[ik][:,band]' * orbital_ortho[ik][m1+l+1,:] *
-                    orbital_ortho[ik][m2+l+1,:]' * ψ[ik][:,band] #/n_k
+                    basis.kweights[ik] * ψ[ik][:,band]' * orbital_ortho[ik][m1+l+1,:] * 
+                    orbital_ortho[ik][m2+l+1,:]' * ψ[ik][:,band] * basis.model.n_spin_components / 2#/n_k
                 end
             end
         end

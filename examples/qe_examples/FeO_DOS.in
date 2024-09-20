@@ -1,0 +1,4 @@
+&DOS
+  prefix= 'feo_af',
+  outdir= '/out/'
+/
