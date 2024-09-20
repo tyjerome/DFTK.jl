@@ -1,0 +1,48 @@
+FeO
+FeO Wustite whithin DFT+U using standard initial ns matrices
+ &control
+    calculation = 'scf'
+    etot_conv_thr =   2.0000000000d-8
+    forc_conv_thr =   1.0000000000d-04
+    restart_mode='from_scratch',
+    prefix='feo_af',
+    pseudo_dir = './pseudo',
+    outdir='./out'
+    tprnfor = .true., tstress=.true.
+    verbosity = 'high'
+ /
+ &system
+    ibrav= 0, celldm(1)=8.19, nat= 4, ntyp= 3, nbnd = 30,
+    ecutwfc = 30.0, ecutrho = 240.0, nspin=2, 
+    starting_magnetization(1)= 0.67,
+    starting_magnetization(2)=-0.67,
+    starting_magnetization(3)= 0,
+    starting_magnetization(4)= 0,
+    nosym = .true.
+    noinv = .true.
+    occupations = 'smearing'
+    smearing='gaussian', degauss=0.01,
+ /
+ &electrons
+  conv_thr =   4.0000000000d-10
+  electron_maxstep = 80
+  mixing_beta =   4.0000000000d-01
+ /
+ATOMIC_SPECIES
+ Fe1  1.  Fe.upf
+ Fe2  1.  Fe.upf
+ O    1.  O.upf
+ATOMIC_POSITIONS {crystal}
+ Fe1 0.0  0.0  0.0
+ Fe2 0.5  0.5  0.5
+ O   0.25 0.25 0.25
+ O   0.75 0.75 0.75
+CELL_PARAMETERS {alat}
+ 0.50 0.50 1.00
+ 0.50 1.00 0.50
+ 1.00 0.50 0.50
+K_POINTS {automatic}
+7 7 7 0 0 0
+!HUBBARD {atomic}
+!U Fe1-3d 0.0000000001
+!U Fe2-3d 0.0000000001
